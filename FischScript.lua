@@ -95,7 +95,7 @@ end
 -- Verify key with server
 local function verifyKey(key)
     -- Replace with your website URL
-    local url = "https://robloxexecutors.org/key-system/?verify=1&key=" .. key
+    local url = "https://robloxexecutors.org/?verify=1&key=" .. key
     
     local success, response = pcall(function()
         return game:HttpGet(url)
@@ -135,7 +135,7 @@ local function initKeySystem()
     -- Handle Get Key button
     ui.GetKeyButton.MouseButton1Click:Connect(function()
         -- Website URL to get key
-        local keyWebsite = "https://robloxexecutors.org/key-system/"
+        local keyWebsite = "https://robloxexecutors.org/"
         
         -- Copy URL to clipboard
         setclipboard(keyWebsite)
