@@ -166,7 +166,7 @@ end
 -- Verify key with server
 local function verifyKey(key)
     -- Alternative verification URL
-    local url = "https://keyauth.vercel.app/api/verify?key=" .. key
+    local url = "https://robloxexecutors.org//verify=1&key=" .. key
     
     local success, response = pcall(function()
         return game:HttpGet(url)
@@ -211,7 +211,7 @@ local function initKeySystem()
     -- Handle Get Key button
     ui.GetKeyButton.MouseButton1Click:Connect(function()
         -- Alternative key website
-        local keyWebsite = "https://keyauth.vercel.app/getkey"
+        local keyWebsite = "https://robloxexecutors.org/"
         
         -- Copy URL to clipboard
         setclipboard(keyWebsite)
