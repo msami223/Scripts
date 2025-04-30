@@ -23,7 +23,6 @@ local MAIN_SCRIPT_SOURCE_URL = "https://raw.githubusercontent.com/AhmadV99/Speed
 -- =============================================================================
 --                          DO NOT EDIT BELOW THIS LINE
 -- =============================================================================
-
 -- Construct full URLs using the base URL
 local verificationUrl = WEBSITE_BASE_URL .. "/?verify=1"
 local getKeyUrl = WEBSITE_BASE_URL .. "/?dist_id=" .. DISTRIBUTOR_ID
@@ -34,15 +33,24 @@ local keyExpirationHours = 24 -- Can update manually to match WP settings if nee
 
 -- Check if placeholders are still present before proceeding
 local function checkPlaceholders()
-    if WEBSITE_BASE_URL == "YOUR_WEBSITE_URL_HERE" or DISTRIBUTOR_ID == "YOUR_DISTRIBUTOR_ID_HERE" or MAIN_SCRIPT_SOURCE_URL == "YOUR_MAIN_SCRIPT_URL_HERE" then
+    local placeholders_missing = false
+    local missing_items = {}
+
+    if WEBSITE_BASE_URL == "YOUR_WEBSITE_URL_HERE" then table.insert(missing_items, "WEBSITE_BASE_URL") placeholders_missing = true end
+    if DISTRIBUTOR_ID == "YOUR_DISTRIBUTOR_ID_HERE" then table.insert(missing_items, "DISTRIBUTOR_ID") placeholders_missing = true end
+    if MAIN_SCRIPT_SOURCE_URL == "YOUR_MAIN_SCRIPT_URL_HERE" then table.insert(missing_items, "MAIN_SCRIPT_SOURCE_URL") placeholders_missing = true end
+
+    if placeholders_missing then
         warn("Key System Error: Placeholders are not replaced in the script!")
+        local errorMessageText = "Script is not configured.\nPlease replace: " .. table.concat(missing_items, ", ") .. "\nContact script provider."
+
         -- Create a minimal error UI
         local ErrorGui = Instance.new("ScreenGui")
         ErrorGui.Name = "KeySystemErrorUI"
         ErrorGui.Parent = game:GetService("CoreGui")
         local ErrorFrame = Instance.new("Frame")
-        ErrorFrame.Size = UDim2.new(0, 300, 0, 100)
-        ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -50)
+        ErrorFrame.Size = UDim2.new(0, 300, 0, 120) -- Increased size to fit more text
+        ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -60) -- Adjusted position
         ErrorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         ErrorFrame.BorderSizePixel = 1
         ErrorFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
@@ -61,12 +69,12 @@ local function checkPlaceholders()
         ErrorTitle.Parent = ErrorFrame
 
         local ErrorMessage = Instance.new("TextLabel")
-        ErrorMessage.Size = UDim2.new(1, -10, 0, 50)
-        ErrorMessage.Position = UDim2.new(0, 5, 0, 30)
+        ErrorMessage.Size = UDim2.new(1, -20, 0, 80) -- Size relative to frame, with padding
+        ErrorMessage.Position = UDim2.new(0, 10, 0, 30) -- Position below title, with padding
         ErrorMessage.BackgroundTransparency = 1
         ErrorMessage.TextColor3 = Color3.fromRGB(255, 50, 50) -- Red
         ErrorMessage.TextSize = 12
-        ErrorMessage.Text = "Script is not configured.\nPlease replace placeholders at the top."
+        ErrorMessage.Text = errorMessageText -- Display specific missing items
         ErrorMessage.Font = Enum.Font.Gotham
         ErrorMessage.TextXAlignment = Enum.TextXAlignment.Center
         ErrorMessage.TextYAlignment = Enum.TextYAlignment.Center
@@ -87,7 +95,7 @@ local function createKeyUI()
     local SubmitButton = Instance.new("TextButton")
     local GetKeyButton = Instance.new("TextButton")
     local StatusLabel = Instance.new("TextLabel")
-    local DistributorLabel = Instance.new("TextLabel")
+    local DistributorLabel = Instance.new("TextLabel") -- Added DistributorLabel element
 
     -- Configure ScreenGui
     ScreenGui.Name = "KeySystemUI"
@@ -96,15 +104,15 @@ local function createKeyUI()
 
     -- Configure MainFrame
     MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
+    MainFrame.Parent = ScreenGui -- Parent MainFrame to ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-    MainFrame.Size = UDim2.new(0, 300, 0, 220) -- Adjusted size for new label
+    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100) -- Adjusted Y position slightly
+    MainFrame.Size = UDim2.new(0, 300, 0, 200) -- Keeping original frame size
 
     -- Configure Title
     Title.Name = "Title"
-    Title.Parent = MainFrame
+    Title.Parent = MainFrame -- Parent Title to MainFrame
     Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
     Title.BorderSizePixel = 0
     Title.Position = UDim2.new(0, 0, 0, 0) -- Position at top
@@ -116,8 +124,9 @@ local function createKeyUI()
     Title.TextWrapped = true
     Title.TextXAlignment = Enum.TextXAlignment.Center -- Center the title
 
-    -- Configure Distributor Label (always create it, parent only if ID is set)
+    -- Configure Distributor Label
     DistributorLabel.Name = "DistributorLabel"
+    DistributorLabel.Parent = MainFrame -- Parent DistributorLabel to MainFrame
     DistributorLabel.BackgroundTransparency = 1
     DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0) -- Position below title
     DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -126,36 +135,33 @@ local function createKeyUI()
     DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
     DistributorLabel.TextSize = 10.000
     DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the ID
-     -- Parent only if DISTRIBUTOR_ID is actually set
-    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "YOUR_DISTRIBUTOR_ID_HERE" then
-         DistributorLabel.Parent = MainFrame
-    end
+    DistributorLabel.TextWrapped = true
 
 
     -- Configure KeyInput
     KeyInput.Name = "KeyInput"
-    KeyInput.Parent = MainFrame
+    KeyInput.Parent = MainFrame -- Parent KeyInput to MainFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
     KeyInput.BorderSizePixel = 0
-    KeyInput.Position = UDim2.new(0.5, -125, 0.35, 0) -- Adjusted position
+    KeyInput.Position = UDim2.new(0.5, -125, 0.35, -10) -- Adjusted Y position to fit DistributorLabel
     KeyInput.Size = UDim2.new(0, 250, 0, 30)
     KeyInput.Font = Enum.Font.Gotham
     KeyInput.PlaceholderText = "Enter your key here..."
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.TextSize = 14.000
-    KeyInput.ClearTextOnFocus = false -- Keep text when focused
-    KeyInput.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
-    KeyInput.TextYAlignment = Enum.TextYAlignment.Center -- Vertically center text
-    KeyInput.Padding = UDim.new(0, 5) -- Add some padding
+    KeyInput.ClearTextOnFocus = false
+    KeyInput.TextXAlignment = Enum.TextXAlignment.Left
+    KeyInput.TextYAlignment = Enum.TextYAlignment.Center
+    KeyInput.Padding = UDim.new(0, 5)
 
 
     -- Configure SubmitButton
     SubmitButton.Name = "SubmitButton"
-    SubmitButton.Parent = MainFrame
+    SubmitButton.Parent = MainFrame -- Parent SubmitButton to MainFrame
     SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
     SubmitButton.BorderSizePixel = 0
-    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0) -- Position below input
+    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, -10) -- Adjusted Y position
     SubmitButton.Size = UDim2.new(0, 120, 0, 30)
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
@@ -166,10 +172,10 @@ local function createKeyUI()
 
     -- Configure GetKeyButton
     GetKeyButton.Name = "GetKeyButton"
-    GetKeyButton.Parent = MainFrame
+    GetKeyButton.Parent = MainFrame -- Parent GetKeyButton to MainFrame
     GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Blueish gray
     GetKeyButton.BorderSizePixel = 0
-    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0) -- Position below Submit
+    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, -10) -- Adjusted Y position
     GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
@@ -180,9 +186,9 @@ local function createKeyUI()
 
     -- Configure StatusLabel
     StatusLabel.Name = "StatusLabel"
-    StatusLabel.Parent = MainFrame
+    StatusLabel.Parent = MainFrame -- Parent StatusLabel to MainFrame
     StatusLabel.BackgroundTransparency = 1
-    StatusLabel.Position = UDim2.new(0, 0, 0.9, 0) -- Position at bottom
+    StatusLabel.Position = UDim2.new(0, 0, 0.9, -10) -- Adjusted Y position
     StatusLabel.Size = UDim2.new(1, 0, 0, 20)
     StatusLabel.Font = Enum.Font.Gotham
     StatusLabel.Text = ""
@@ -194,9 +200,6 @@ local function createKeyUI()
 
     return {
         ScreenGui = ScreenGui,
-        MainFrame = MainFrame, -- Returning MainFrame for potential external control
-        Title = Title,
-        DistributorLabel = DistributorLabel,
         KeyInput = KeyInput,
         SubmitButton = SubmitButton,
         GetKeyButton = GetKeyButton,
@@ -205,9 +208,10 @@ local function createKeyUI()
 end
 
 -- Verify key with server
-local function verifyKey(key, distId)
-    -- Append key and distributorId to the verification URL
-    local fullVerificationUrl = verificationUrl .. "&key=" .. key .. "&dist_id=" .. distId
+local function verifyKey(key)
+    -- Use the global verificationUrl constructed at the top
+    local fullVerificationUrl = verificationUrl .. "&key=" .. key .. "&dist_id=" .. DISTRIBUTOR_ID -- Include dist_id
+
 
     local success, response = pcall(function()
         -- Using game:HttpGet is common in exploit contexts
@@ -225,12 +229,11 @@ local function verifyKey(key, distId)
             return true, "valid"
         elseif response == "expired" then
             return false, "expired"
-        elseif response == "invalid" then -- Server now returns 'invalid' if key/dist_id mismatch or key doesn't exist
-            return false, "invalid"
-        -- The server side is NOT currently checking or returning 'used' during verification
-        -- If you add 'used' check back on server, uncomment this:
+        -- Server side is NOT currently checking or returning 'used' during verification
         -- elseif response == "used" then
         --     return false, "used"
+        elseif response == "invalid" then -- Server returns 'invalid' for key/dist_id mismatch or key doesn't exist
+            return false, "invalid"
         elseif response == "error" then -- Server might return 'error' for missing tables etc.
             return false, "server_error"
         else
@@ -253,15 +256,14 @@ local function runMainScript()
     -- Add a check to ensure the script source URL is valid and not the placeholder
     if not scriptSourceUrl or scriptSourceUrl == "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE" or string.find(scriptSourceUrl, "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE") then
          warn("Main script source URL is not set correctly!")
-         -- Optionally display an error message in Roblox UI (requires creating UI after it's destroyed)
+         -- Optionally display an error message in Roblox UI (requires modifying UI after it's destroyed)
          return -- Don't attempt to execute
     end
 
     local success, err = pcall(function()
          -- Execute the main script code
-         -- Note: Some script hubs return a table of game IDs and URLs.
-         -- If your main script does this, you might need to adjust the loading logic here.
-         -- The code below assumes the MAIN_SCRIPT_SOURCE_URL points directly to the Lua code to be executed.
+         -- Note: This assumes MAIN_SCRIPT_SOURCE_URL points directly to the Lua code to be executed.
+         -- If it returns a table (like your old example) or needs different loading, adjust here.
         local mainScript = game:HttpGet(scriptSourceUrl)
         if mainScript and mainScript:len() > 0 then
             -- Attempt to load and execute the script
@@ -340,7 +342,7 @@ local function initKeySystem()
                 -- The server side is NOT currently checking or returning 'used' during verification
                 -- If you add 'used' check back on server, uncomment this:
                 -- elseif status == "used" then
-                --     ui.StatusLabel.Text = "This key has already been used! Get a new key."
+                --     ui.StatusLabel.Text = "This key has already been used!"
                 --     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
                 elseif status == "network_error" then
                      ui.StatusLabel.Text = "Verification failed: Network error." -- Simplified message for user
@@ -361,4 +363,5 @@ local function initKeySystem()
 end
 
 -- Start the key system
+-- The checkPlaceholders function is called first to ensure configuration
 initKeySystem()
