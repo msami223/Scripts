@@ -8,7 +8,7 @@
 
 -- 1. REPLACE "YOUR_WEBSITE_URL_HERE" with the base URL of your WordPress site.
 --    Example: "https://wordpress-1442530-5468918.cloudwaysapps.com"
-local WEBSITE_BASE_URL = "https://wordpress-1442530-5469162.cloudwaysapps.com/" -- <-- REPLACE THIS
+local WEBSITE_BASE_URL = "https://wordpress-1442530-5469162.cloudwaysapps.com" -- <-- REPLACE THIS
 
 -- 2. REPLACE "YOUR_DISTRIBUTOR_ID_HERE" with the unique ID assigned to this distributor.
 --    You can find this ID on your WordPress Key System -> Distributors page.
