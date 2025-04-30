@@ -1,9 +1,27 @@
 -- Key System Script for Roblox with Distributor Support
--- Define your distributor ID here
-local DISTRIBUTOR_ID = "cbbda565" -- Replace with your distributor ID
+-- Configure your Distributor ID here:
+-- Use "" or "default" for keys generated without a specific distributor ID (main website page).
+-- Use the specific Distributor ID (e.g., "cbbda565") for keys generated via a distributor link.
+local DISTRIBUTOR_ID = "cbbda565" -- <-- YOU MUST REPLACE THIS!
+
+-- Define the base URL for your key system website and verification endpoint
+local KEY_WEBSITE_BASE_URL = "https://wordpress-1442530-5466128.cloudwaysapps.com/" -- Your website base URL (e.g., https://yourdomain.com/)
+local VERIFICATION_BASE_URL = "https://wordpress-1442530-5466128.cloudwaysapps.com/?verify=1" -- Your verification endpoint (e.g., https://yourdomain.com/?verify=1)
+
+-- Require necessary services
+local HttpService = game:GetService("HttpService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local UserInputService = game:GetService("UserInputService")
 
 -- Create the key verification UI
 local function createKeyUI()
+    -- Clean up any existing UI just in case
+    local existingUi = CoreGui:FindFirstChild("KeySystemUI")
+    if existingUi then
+        existingUi:Destroy()
+    end
+
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
     local Title = Instance.new("TextLabel")
@@ -12,81 +30,116 @@ local function createKeyUI()
     local GetKeyButton = Instance.new("TextButton")
     local StatusLabel = Instance.new("TextLabel")
     local DistributorLabel = Instance.new("TextLabel")
-    
+
     -- Configure ScreenGui
     ScreenGui.Name = "KeySystemUI"
-    ScreenGui.Parent = game:GetService("CoreGui")
+    ScreenGui.Parent = CoreGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
+    ScreenGui.DisplayOrder = 1000 -- Make sure it's on top of other GUIs
+
     -- Configure MainFrame
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
-    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
-    MainFrame.BorderSizePixel = 0
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42) -- Dark Blue/Gray
+    MainFrame.BackgroundTransparency = 0.1 -- Slightly transparent
+    MainFrame.BorderColor3 = Color3.fromRGB(40, 60, 90)
+    MainFrame.BorderSizePixel = 1
     MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
     MainFrame.Size = UDim2.new(0, 300, 0, 220)
-    
+    MainFrame.Draggable = true -- Make it draggable
+    MainFrame.CornerRadius = UDim.new(0, 8) -- Rounded corners
+    MainFrame.ClipsDescendants = true -- Prevents children from overflowing corners
+
+    -- Add a UI Gradient for a subtle look
+    local FrameGradient = Instance.new("UIGradient")
+    FrameGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 37, 56)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 23, 42))
+    }
+    FrameGradient.Parent = MainFrame
+
     -- Configure Title
     Title.Name = "Title"
     Title.Parent = MainFrame
-    Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
+    Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59) -- Slightly Lighter Dark Blue/Gray
+    Title.BackgroundTransparency = 0 -- Opaque background
     Title.BorderSizePixel = 0
     Title.Size = UDim2.new(1, 0, 0, 30)
     Title.Font = Enum.Font.GothamSemibold
     Title.Text = "Script Key System"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 16.000
-    
+    Title.TextWrapped = true
+    Title.TextXAlignment = Enum.TextXAlignment.Center
+    Title.TextYAlignment = Enum.TextYAlignment.Center
+
+    -- Add a UI Corner for the title background
+    local TitleCorner = Instance.new("UICorner")
+    TitleCorner.CornerRadius = UDim.new(0, 8)
+    TitleCorner.Parent = Title -- Applies corner to the bottom edge implicitly
+
     -- Configure Distributor Label (if distributor ID is set)
-    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "DISTRIBUTOR_ID_HERE" then
-        DistributorLabel.Name = "DistributorLabel"
-        DistributorLabel.Parent = MainFrame
-        DistributorLabel.BackgroundTransparency = 1
-        DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0)
-        DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
-        DistributorLabel.Font = Enum.Font.Gotham
-        DistributorLabel.Text = "Distributor: " .. DISTRIBUTOR_ID
-        DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
-        DistributorLabel.TextSize = 10.000
-    end
-    
+    local displayDistributorId = (DISTRIBUTOR_ID == "" or DISTRIBUTOR_ID == "DISTRIBUTOR_ID_HERE") and "default" or DISTRIBUTOR_ID
+    DistributorLabel.Name = "DistributorLabel"
+    DistributorLabel.Parent = MainFrame
+    DistributorLabel.BackgroundTransparency = 1
+    DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0) -- Position slightly below title
+    DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
+    DistributorLabel.Font = Enum.Font.Gotham
+    DistributorLabel.Text = "Distributor: " .. displayDistributorId
+    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255) -- Muted Purple/Blue
+    DistributorLabel.TextSize = 10.000
+    DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center
+    DistributorLabel.TextYAlignment = Enum.TextYAlignment.Center
+
     -- Configure KeyInput
     KeyInput.Name = "KeyInput"
     KeyInput.Parent = MainFrame
-    KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
-    KeyInput.BorderSizePixel = 0
+    KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Slightly Lighter Dark Blue/Gray
+    KeyInput.BackgroundTransparency = 0.2 -- Semi-transparent
+    KeyInput.BorderColor3 = Color3.fromRGB(60, 80, 110)
+    KeyInput.BorderSizePixel = 1
     KeyInput.Position = UDim2.new(0.5, -125, 0.35, 0)
     KeyInput.Size = UDim2.new(0, 250, 0, 30)
-    KeyInput.Font = Enum.Font.Gotham
+    KeyInput.Font = Enum.Font.SourceSans
     KeyInput.PlaceholderText = "Enter your key here..."
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 160, 170)
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.TextSize = 14.000
-    
+    KeyInput.ClearTextOnFocus = false -- Don't clear text when focused
+    KeyInput.CornerRadius = UDim.new(0, 6)
+
     -- Configure SubmitButton
     SubmitButton.Name = "SubmitButton"
     SubmitButton.Parent = MainFrame
-    SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
-    SubmitButton.BorderSizePixel = 0
+    SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
+    SubmitButton.BackgroundTransparency = 0
+    SubmitButton.BorderColor3 = Color3.fromRGB(25, 150, 70)
+    SubmitButton.BorderSizePixel = 1
     SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0)
     SubmitButton.Size = UDim2.new(0, 120, 0, 30)
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
     SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitButton.TextSize = 14.000
-    
+    SubmitButton.CornerRadius = UDim.new(0, 6)
+
     -- Configure GetKeyButton
     GetKeyButton.Name = "GetKeyButton"
     GetKeyButton.Parent = MainFrame
-    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
-    GetKeyButton.BorderSizePixel = 0
+    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Dark Blue/Gray
+    GetKeyButton.BackgroundTransparency = 0
+    GetKeyButton.BorderColor3 = Color3.fromRGB(60, 80, 110)
+    GetKeyButton.BorderSizePixel = 1
     GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0)
     GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
     GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     GetKeyButton.TextSize = 14.000
-    
+    GetKeyButton.CornerRadius = UDim.new(0, 6)
+
     -- Configure StatusLabel
     StatusLabel.Name = "StatusLabel"
     StatusLabel.Parent = MainFrame
@@ -97,132 +150,244 @@ local function createKeyUI()
     StatusLabel.Text = ""
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     StatusLabel.TextSize = 12.000
-    
+    StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
+    StatusLabel.TextYAlignment = Enum.TextYAlignment.Center
+    StatusLabel.TextWrapped = true
+
+
     return {
         ScreenGui = ScreenGui,
         KeyInput = KeyInput,
         SubmitButton = SubmitButton,
         GetKeyButton = GetKeyButton,
-        StatusLabel = StatusLabel
+        StatusLabel = StatusLabel,
+        MainFrame = MainFrame -- Return the frame for dragging
     }
 end
 
 -- Verify key with server
 local function verifyKey(key)
     -- Base verification URL with your actual domain
-    local baseUrl = "https://wordpress-1442530-5466128.cloudwaysapps.com/?verify=1"
-    
-    -- Add distributor parameter if available
-    local url = baseUrl
-    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "DISTRIBUTOR_ID_HERE" then
-        url = url .. "&distributor=" .. DISTRIBUTOR_ID
-    end
-    
+    local url = VERIFICATION_BASE_URL
+
+    -- Add distributor parameter: Use "default" if DISTRIBUTOR_ID is empty or placeholder
+    -- The server expects 'default' if no specific ID is used
+    local actualDistributorId = (DISTRIBUTOR_ID == "" or DISTRIBUTOR_ID == "DISTRIBUTOR_ID_HERE") and "default" or DISTRIBUTOR_ID
+    url = url .. "&distributor=" .. HttpService:UrlEncode(actualDistributorId) -- URL encode distributor ID
+
     -- Add key parameter
-    url = url .. "&key=" .. key
-    
-    -- Print the URL for debugging (remove in production)
-    print("Verification URL: " .. url)
-    
+    url = url .. "&key=" .. HttpService:UrlEncode(key) -- URL encode the key
+
+    -- Print the URL and raw response for debugging (remove or comment out in production)
+    -- print("[DEBUG] Verification URL: " .. url)
     local success, response = pcall(function()
-        return game:HttpGet(url)
+        -- Use HttpService to make requests
+        return HttpService:GetAsync(url)
     end)
-    
-    -- Print the response for debugging (remove in production)
+
     if success then
-        print("Response: " .. response)
+        -- print("[DEBUG] Raw Response: '" .. tostring(response) .. "'")
     else
-        print("Error: " .. tostring(response))
+        warn("[DEBUG] HTTP Error: " .. tostring(response))
+        return false, "http_error" -- Indicate a network/HTTP error
     end
-    
-    if success then
-        response = string.gsub(response, "^%s*(.-)%s*$", "%1") -- Trim whitespace
-        
+
+    if success and type(response) == "string" then
+        -- Trim whitespace from the response
+        response = string.gsub(response, "^%s*(.-)%s*$", "%1")
+        -- print("[DEBUG] Trimmed Response: '" .. response .. "'") -- Debug trimmed response
+
         if response == "valid" then
             return true, "valid"
         elseif response == "expired" then
             return false, "expired"
         elseif response == "used" then
             return false, "used"
-        else
+        elseif response == "invalid" then
             return false, "invalid"
+        else
+             -- Handle unexpected responses
+             warn("[DEBUG] Unexpected response from server: '" .. response .. "'")
+             return false, "invalid_response" -- Or just 'invalid'? invalid_response is more specific.
         end
     else
-        return false, "error"
+         warn("[DEBUG] verifyKey failed or received non-string response.")
+        return false, "error" -- General error
     end
 end
+
 -- Run the script after key verification
 local function runMainScript()
-    -- Your actual script URL here
-    local Games = loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+    -- Hide the UI
+    local uiGui = CoreGui:FindFirstChild("KeySystemUI")
+    if uiGui then
+        uiGui:Destroy()
+    end
+    print("Key verified. Running main script...")
 
-    for PlaceID, Execute in pairs(Games) do
-        if PlaceID == game.PlaceId then
-            loadstring(game:HttpGet(Execute))()
+    -- Your actual script URL here
+    -- Using true as the second argument to game:HttpGet bypasses the cache, useful during development
+    -- but might increase load times slightly in production. Consider removing true if script doesn't update often.
+    local mainScriptUrl = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- <-- REPLACE THIS
+
+    local success, err = pcall(function()
+        local scriptContent = game:HttpGet(mainScriptUrl, true) -- Fetch the script content
+        if scriptContent and type(scriptContent) == "string" and string.len(scriptContent) > 100 then -- Basic check if content was retrieved (more than 100 chars)
+            -- Load and execute the script content
+            local loadedScript, loadError = loadstring(scriptContent)
+            if loadedScript then
+                loadedScript() -- Execute the loaded function
+            else
+                warn("Failed to load script string: " .. tostring(loadError))
+                 error("Script execution failed: Cannot load string.") -- Throw a Lua error
+            end
+        else
+            warn("Failed to download or empty script content from " .. mainScriptUrl .. ". Received: '" .. tostring(scriptContent) .. "'")
+             error("Script download failed or content too short.") -- Throw a Lua error
         end
+    end)
+
+    if not success then
+        warn("Error executing main script pcall: " .. tostring(err))
+        local ui = createKeyUI() -- Re-show UI on script execution failure
+        ui.StatusLabel.Text = "Error executing script: " .. tostring(err)
+        ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        ui.SubmitButton.Active = true -- Make buttons visible again
+        ui.GetKeyButton.Active = true
+         -- Optional: Set KeyInput text back if needed
+         -- ui.KeyInput.Text = ""
     end
 end
+
+-- Add draggable functionality to the frame
+local function makeDraggable(frame)
+    local dragging = false
+    local dragStartPosition
+    local startPosition
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStartPosition = input.Position
+            startPosition = frame.Position
+             -- Consume input changes while dragging to prevent camera movement etc.
+             -- Note: this might consume other inputs too depending on context
+             input.Changed:Connect(function()
+                 if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                 end
+             end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            local delta = input.Position - dragStartPosition
+            -- Update position relative to the initial startPosition
+            frame.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + delta.X, startPosition.Y.Scale, startPosition.Y.Offset + delta.Y)
+        end
+    end)
+
+    frame.InputEnded:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and dragging then
+            dragging = false
+        end
+    end)
+end
+
 
 -- Initialize key system and UI
 local function initKeySystem()
     local ui = createKeyUI()
-    
+    makeDraggable(ui.MainFrame) -- Make the main frame draggable
+
     -- Handle Get Key button
     ui.GetKeyButton.MouseButton1Click:Connect(function()
-        -- Website URL to get key with distributor parameter if available
-        local keyWebsite = "https://wordpress-1442530-5466128.cloudwaysapps.com/"
-        if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "DISTRIBUTOR_ID_HERE" then
-            keyWebsite = keyWebsite .. "?distributor=" .. DISTRIBUTOR_ID
+        -- Website URL to get key
+        local keyWebsite = KEY_WEBSITE_BASE_URL
+
+        -- Add distributor parameter only if DISTRIBUTOR_ID is set and not empty/placeholder
+        local actualDistributorId = (DISTRIBUTOR_ID == "" or DISTRIBUTOR_ID == "DISTRIBUTOR_ID_HERE") and "default" or DISTRIBUTOR_ID
+
+        -- Append distributor parameter to the URL
+        -- Ensure it's URL encoded
+        keyWebsite = keyWebsite .. "?distributor=" .. HttpService:UrlEncode(actualDistributorId)
+
+
+        -- Copy URL to clipboard - Requires exploit context/functionality
+        if setclipboard then
+            pcall(function() -- Use pcall as setclipboard might error in some contexts
+                setclipboard(keyWebsite)
+                ui.StatusLabel.Text = "Key website URL copied to clipboard! Paste in your browser."
+                ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green
+            end)
+        else
+             ui.StatusLabel.Text = "Copying not supported. Go to this URL manually: " .. keyWebsite
+             ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
         end
-        
-        -- Copy URL to clipboard
-        setclipboard(keyWebsite)
-        
-        ui.StatusLabel.Text = "Key website URL copied to clipboard! Paste in your browser."
-        ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
     end)
-    
+
     -- Handle Submit button
     ui.SubmitButton.MouseButton1Click:Connect(function()
         local key = ui.KeyInput.Text
-        
+
         if key == "" then
             ui.StatusLabel.Text = "Please enter a key!"
-            ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+            ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
             return
         end
-        
+
+        -- Disable buttons while verifying
+        ui.SubmitButton.Active = false
+        ui.GetKeyButton.Active = false
         ui.StatusLabel.Text = "Verifying key..."
-        ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-        
-        task.delay(1.5, function()
+        ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
+
+        -- Use task.spawn for non-blocking verification
+        task.spawn(function()
             local isValid, status = verifyKey(key)
-            
+
+            -- Re-enable buttons after verification attempt
+             ui.SubmitButton.Active = true
+             ui.GetKeyButton.Active = true
+
             if isValid then
                 ui.StatusLabel.Text = "Key verified successfully!"
-                ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-                
-                task.delay(1, function()
-                    ui.ScreenGui:Destroy()
+                ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green
+
+                task.delay(1, function() -- Small delay before hiding UI and running script
                     runMainScript()
                 end)
             else
+                -- Display specific error messages based on status
+                local expirationText = "<?php echo intval($expiration_hours); ?> hours."
                 if status == "expired" then
-                    ui.StatusLabel.Text = "This key has expired! Keys expire after 24 hours."
+                    ui.StatusLabel.Text = "This key has expired! Keys expire after " .. expirationText
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
                 elseif status == "used" then
                     ui.StatusLabel.Text = "This key has already been used!"
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-                else
+                elseif status == "invalid" then
                     ui.StatusLabel.Text = "Invalid key! Please try again."
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                elseif status == "http_error" then
+                     ui.StatusLabel.Text = "Network error during verification. Try again."
+                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                elseif status == "invalid_response" then
+                      ui.StatusLabel.Text = "Server returned an unexpected response."
+                      ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                else -- Catch any other status or generic error
+                     ui.StatusLabel.Text = "Verification failed! Check key and try again."
+                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
                 end
+                 -- Clear the input field on verification failure
+                 ui.KeyInput.Text = ""
             end
-        end)
+        end) -- End task.spawn
     end)
-    
+
     return ui
 end
 
--- Start the key system
+-- Start the key system when the script runs
 initKeySystem()
