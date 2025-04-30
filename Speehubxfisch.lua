@@ -1,30 +1,81 @@
--- Key System Script for Roblox (Distributor Version)
--- Developed for https://wordpress-1442530-5468918.cloudwaysapps.com/
+-- Key System Script for Roblox with Distributor Support
+-- This script uses your WordPress Key System plugin for key generation and verification.
 
+-- =============================================================================
+--                          !!! IMPORTANT !!!
+--           REPLACE THE PLACEHOLDERS BELOW FOR EACH DISTRIBUTOR
+-- =============================================================================
 
--- !!! IMPORTANT !!!
--- REPLACE 'YOUR_DISTRIBUTOR_ID' with the unique ID assigned to this distributor
--- You can find this ID on your WordPress Key System -> Distributors page.
-local distributorId = '5E8E53' -- <-- REPLACE THIS
+-- 1. REPLACE "YOUR_WEBSITE_URL_HERE" with the base URL of your WordPress site.
+--    Example: "https://wordpress-1442530-5468918.cloudwaysapps.com"
+local WEBSITE_BASE_URL = "https://wordpress-1442530-5469162.cloudwaysapps.com/" -- <-- REPLACE THIS
 
--- REPLACE the URL in scriptSourceUrl with the ACTUAL URL of your script source.
--- Example: local scriptSourceUrl = "https://pastebin.com/raw/abcdefgh"
-local scriptSourceUrl = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- <-- REPLACE THIS
+-- 2. REPLACE "YOUR_DISTRIBUTOR_ID_HERE" with the unique ID assigned to this distributor.
+--    You can find this ID on your WordPress Key System -> Distributors page.
+--    Example: "5E8E53"
+local DISTRIBUTOR_ID = "5E8E53" -- <-- REPLACE THIS
 
--- !!! IMPORTANT !!!
+-- 3. REPLACE "YOUR_MAIN_SCRIPT_URL_HERE" with the ACTUAL URL of your main script source.
+--    This is the script that will be executed after successful key verification.
+--    Example: "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"
+local MAIN_SCRIPT_SOURCE_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- <-- REPLACE THIS
 
+-- =============================================================================
+--                          DO NOT EDIT BELOW THIS LINE
+-- =============================================================================
 
--- Base URL for your key system website
-local websiteUrl = "https://wordpress-1442530-5469162.cloudwaysapps.com" -- <-- Use your correct site URL here (without trailing slash)
+-- Construct full URLs using the base URL
+local verificationUrl = WEBSITE_BASE_URL .. "/?verify=1"
+local getKeyUrl = WEBSITE_BASE_URL .. "/?dist_id=" .. DISTRIBUTOR_ID
 
--- Verification Endpoint URL
-local verificationUrl = websiteUrl .. "/?verify=1"
+-- Key Expiration displayed in UI (informative) - Defaults to 24 hours.
+-- The actual expiration is determined by your WordPress settings.
+local keyExpirationHours = 24 -- Can update manually to match WP settings if needed
 
--- Get Key Button URL (appends distributorId automatically)
-local getKeyUrl = websiteUrl .. "/?dist_id=" .. distributorId
+-- Check if placeholders are still present before proceeding
+local function checkPlaceholders()
+    if WEBSITE_BASE_URL == "YOUR_WEBSITE_URL_HERE" or DISTRIBUTOR_ID == "YOUR_DISTRIBUTOR_ID_HERE" or MAIN_SCRIPT_SOURCE_URL == "YOUR_MAIN_SCRIPT_URL_HERE" then
+        warn("Key System Error: Placeholders are not replaced in the script!")
+        -- Create a minimal error UI
+        local ErrorGui = Instance.new("ScreenGui")
+        ErrorGui.Name = "KeySystemErrorUI"
+        ErrorGui.Parent = game:GetService("CoreGui")
+        local ErrorFrame = Instance.new("Frame")
+        ErrorFrame.Size = UDim2.new(0, 300, 0, 100)
+        ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -50)
+        ErrorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        ErrorFrame.BorderSizePixel = 1
+        ErrorFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
+        ErrorFrame.Parent = ErrorGui
+        ErrorFrame.Draggable = true
 
--- Key Expiration displayed in UI (informative) - This is fetched from your WP settings
-local keyExpirationHours = 24 -- Default, replace with the actual value from your WP settings or fetch dynamically if preferred
+        local ErrorTitle = Instance.new("TextLabel")
+        ErrorTitle.Size = UDim2.new(1, 0, 0, 30)
+        ErrorTitle.Position = UDim2.new(0, 0, 0, 0)
+        ErrorTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        ErrorTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+        ErrorTitle.TextSize = 16
+        ErrorTitle.Text = "Script Configuration Error"
+        ErrorTitle.Font = Enum.Font.GothamSemibold
+        ErrorTitle.TextXAlignment = Enum.TextXAlignment.Center
+        ErrorTitle.Parent = ErrorFrame
+
+        local ErrorMessage = Instance.new("TextLabel")
+        ErrorMessage.Size = UDim2.new(1, -10, 0, 50)
+        ErrorMessage.Position = UDim2.new(0, 5, 0, 30)
+        ErrorMessage.BackgroundTransparency = 1
+        ErrorMessage.TextColor3 = Color3.fromRGB(255, 50, 50) -- Red
+        ErrorMessage.TextSize = 12
+        ErrorMessage.Text = "Script is not configured.\nPlease replace placeholders at the top."
+        ErrorMessage.Font = Enum.Font.Gotham
+        ErrorMessage.TextXAlignment = Enum.TextXAlignment.Center
+        ErrorMessage.TextYAlignment = Enum.TextYAlignment.Center
+        ErrorMessage.TextWrapped = true
+        ErrorMessage.Parent = ErrorFrame
+        return false -- Indicate failure
+    end
+    return true -- Indicate success
+end
 
 
 -- Create the key verification UI
@@ -32,75 +83,79 @@ local function createKeyUI()
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
     local Title = Instance.new("TextLabel")
-    local DistributorLabel = Instance.new("TextLabel") -- Added label for distributor ID
     local KeyInput = Instance.new("TextBox")
     local SubmitButton = Instance.new("TextButton")
     local GetKeyButton = Instance.new("TextButton")
     local StatusLabel = Instance.new("TextLabel")
+    local DistributorLabel = Instance.new("TextLabel")
 
-    -- Basic UI Setup (You can enhance this)
-    ScreenGui.Name = "DistributorKeySystemUI"
-    ScreenGui.Parent = game:GetService("CoreGui") -- Use CoreGui to appear above other UI
+    -- Configure ScreenGui
+    ScreenGui.Name = "KeySystemUI"
+    ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+    -- Configure MainFrame
     MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui -- PARENT MainFrame to ScreenGui
-    MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    MainFrame.BorderSizePixel = 1
-    MainFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
-    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -115)
-    MainFrame.Size = UDim2.new(0, 300, 0, 230)
-    MainFrame.Draggable = true -- Make it draggable
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    MainFrame.Size = UDim2.new(0, 300, 0, 220) -- Adjusted size for new label
 
+    -- Configure Title
     Title.Name = "Title"
-    Title.Parent = MainFrame -- PARENT Title to MainFrame
-    Title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Title.Parent = MainFrame
+    Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
     Title.BorderSizePixel = 0
-    Title.Position = UDim2.new(0, 0, 0, 0)
+    Title.Position = UDim2.new(0, 0, 0, 0) -- Position at top
     Title.Size = UDim2.new(1, 0, 0, 30)
     Title.Font = Enum.Font.GothamSemibold
     Title.Text = "Script Key System"
-    Title.TextColor3 = Color3.fromRGB(200, 200, 200)
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 16.000
     Title.TextWrapped = true
-    Title.TextXAlignment = Enum.TextXAlignment.Center
+    Title.TextXAlignment = Enum.TextXAlignment.Center -- Center the title
 
+    -- Configure Distributor Label (always create it, parent only if ID is set)
     DistributorLabel.Name = "DistributorLabel"
-    DistributorLabel.Parent = MainFrame -- PARENT DistributorLabel to MainFrame
     DistributorLabel.BackgroundTransparency = 1
-    DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0)
+    DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0) -- Position below title
     DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
     DistributorLabel.Font = Enum.Font.Gotham
-    DistributorLabel.Text = "Dist ID: " .. distributorId
-    DistributorLabel.TextColor3 = Color3.fromRGB(120, 120, 120)
-    DistributorLabel.TextSize = 10.000 -- Slightly smaller
-    DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center
-    DistributorLabel.TextWrapped = true
+    DistributorLabel.Text = "Distributor: " .. DISTRIBUTOR_ID -- Display distributor ID
+    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
+    DistributorLabel.TextSize = 10.000
+    DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the ID
+     -- Parent only if DISTRIBUTOR_ID is actually set
+    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "YOUR_DISTRIBUTOR_ID_HERE" then
+         DistributorLabel.Parent = MainFrame
+    end
 
 
+    -- Configure KeyInput
     KeyInput.Name = "KeyInput"
-    KeyInput.Parent = MainFrame -- PARENT KeyInput to MainFrame
-    KeyInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    KeyInput.BorderSizePixel = 1
-    KeyInput.BorderColor3 = Color3.fromRGB(80, 80, 80)
-    KeyInput.Position = UDim2.new(0.5, -125, 0.3, 15)
+    KeyInput.Parent = MainFrame
+    KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
+    KeyInput.BorderSizePixel = 0
+    KeyInput.Position = UDim2.new(0.5, -125, 0.35, 0) -- Adjusted position
     KeyInput.Size = UDim2.new(0, 250, 0, 30)
-    KeyInput.Font = Enum.Font.SourceSans
+    KeyInput.Font = Enum.Font.Gotham
     KeyInput.PlaceholderText = "Enter your key here..."
     KeyInput.Text = ""
-    KeyInput.TextColor3 = Color3.fromRGB(240, 240, 240)
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.TextSize = 14.000
-    KeyInput.ClearTextOnFocus = false
-    KeyInput.TextXAlignment = Enum.TextXAlignment.Left
-    KeyInput.TextYAlignment = Enum.TextYAlignment.Center
+    KeyInput.ClearTextOnFocus = false -- Keep text when focused
+    KeyInput.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
+    KeyInput.TextYAlignment = Enum.TextYAlignment.Center -- Vertically center text
     KeyInput.Padding = UDim.new(0, 5) -- Add some padding
 
 
+    -- Configure SubmitButton
     SubmitButton.Name = "SubmitButton"
-    SubmitButton.Parent = MainFrame -- PARENT SubmitButton to MainFrame
+    SubmitButton.Parent = MainFrame
     SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
     SubmitButton.BorderSizePixel = 0
-    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 15)
+    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0) -- Position below input
     SubmitButton.Size = UDim2.new(0, 120, 0, 30)
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
@@ -109,11 +164,12 @@ local function createKeyUI()
     SubmitButton.AutoButtonColor = true
 
 
+    -- Configure GetKeyButton
     GetKeyButton.Name = "GetKeyButton"
-    GetKeyButton.Parent = MainFrame -- PARENT GetKeyButton to MainFrame
+    GetKeyButton.Parent = MainFrame
     GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Blueish gray
     GetKeyButton.BorderSizePixel = 0
-    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 15)
+    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0) -- Position below Submit
     GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
@@ -122,22 +178,23 @@ local function createKeyUI()
     GetKeyButton.AutoButtonColor = true
 
 
+    -- Configure StatusLabel
     StatusLabel.Name = "StatusLabel"
-    StatusLabel.Parent = MainFrame -- PARENT StatusLabel to MainFrame
+    StatusLabel.Parent = MainFrame
     StatusLabel.BackgroundTransparency = 1
-    StatusLabel.Position = UDim2.new(0, 0, 0.9, 15)
+    StatusLabel.Position = UDim2.new(0, 0, 0.9, 0) -- Position at bottom
     StatusLabel.Size = UDim2.new(1, 0, 0, 20)
     StatusLabel.Font = Enum.Font.Gotham
     StatusLabel.Text = ""
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Default white
     StatusLabel.TextSize = 12.000
-    StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
-    StatusLabel.TextWrapped = true
+    StatusLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the status text
+    StatusLabel.TextWrapped = true -- Wrap long status messages
 
 
     return {
         ScreenGui = ScreenGui,
-        MainFrame = MainFrame, -- Included MainFrame in the returned table
+        MainFrame = MainFrame, -- Returning MainFrame for potential external control
         Title = Title,
         DistributorLabel = DistributorLabel,
         KeyInput = KeyInput,
@@ -190,22 +247,22 @@ end
 
 -- Run the script after key verification
 local function runMainScript()
-    -- !!! IMPORTANT !!!
-    -- REPLACE this URL with the ACTUAL URL of your script source for THIS distributor
-    -- Example: local scriptSourceUrl = "https://pastebin.com/raw/abcdefgh"
-    local scriptSourceUrl = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- <-- REPLACE THIS
+    -- The URL to the main script source is defined at the top of the file
+    local scriptSourceUrl = MAIN_SCRIPT_SOURCE_URL
 
     -- Add a check to ensure the script source URL is valid and not the placeholder
-    if not scriptSourceUrl or scriptSourceUrl == "YOUR_SCRIPT_SOURCE_URL" or string.find(scriptSourceUrl, "YOUR_SCRIPT_SOURCE_URL") then
+    if not scriptSourceUrl or scriptSourceUrl == "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE" or string.find(scriptSourceUrl, "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE") then
          warn("Main script source URL is not set correctly!")
-         -- Optionally display an error message in Roblox UI (requires modifying UI after it's destroyed)
+         -- Optionally display an error message in Roblox UI (requires creating UI after it's destroyed)
          return -- Don't attempt to execute
     end
 
-
     local success, err = pcall(function()
          -- Execute the main script code
-        local mainScript = game:HttpGet(scriptSourceUrl) -- No timeout here, relying on game engine defaults
+         -- Note: Some script hubs return a table of game IDs and URLs.
+         -- If your main script does this, you might need to adjust the loading logic here.
+         -- The code below assumes the MAIN_SCRIPT_SOURCE_URL points directly to the Lua code to be executed.
+        local mainScript = game:HttpGet(scriptSourceUrl)
         if mainScript and mainScript:len() > 0 then
             -- Attempt to load and execute the script
              local success_exec, err_exec = pcall(function()
@@ -213,9 +270,8 @@ local function runMainScript()
              end)
              if not success_exec then
                  warn("Error executing main script:", err_exec)
-                 -- Optionally display error in UI if needed
+                 -- Optionally display error in UI if needed (complex after UI destroyed)
              end
-
         else
             error("Failed to download main script or script is empty from " .. scriptSourceUrl)
         end
@@ -226,52 +282,14 @@ local function runMainScript()
         -- This pcall catches errors from game:HttpGet or the inner loadstring/execution
         -- Optionally display an error to the user
     end
-
 end
 
 -- Initialize key system and UI
 local function initKeySystem()
-    -- Check if distributorId is set before creating UI
-    local trimmedDistributorId = distributorId:gsub("%s+", "")
-    if not trimmedDistributorId or trimmedDistributorId == 'YOUR_DISTRIBUTOR_ID' then
-        warn("Distributor ID is not set or is placeholder in the script!")
-        -- Create a minimal UI just to show an error message
-        local ErrorGui = Instance.new("ScreenGui")
-        ErrorGui.Name = "KeySystemErrorUI"
-        ErrorGui.Parent = game:GetService("CoreGui")
-        local ErrorFrame = Instance.new("Frame") -- Use a frame for better centering/styling
-        ErrorFrame.Size = UDim2.new(0, 300, 0, 80)
-        ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -40)
-        ErrorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        ErrorFrame.BorderSizePixel = 1
-        ErrorFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
-        ErrorFrame.Parent = ErrorGui
-        ErrorFrame.Draggable = true
-
-        local ErrorTitle = Instance.new("TextLabel")
-        ErrorTitle.Size = UDim2.new(1, 0, 0, 30)
-        ErrorTitle.Position = UDim2.new(0, 0, 0, 0)
-        ErrorTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        ErrorTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-        ErrorTitle.TextSize = 16
-        ErrorTitle.Text = "Key System Error"
-        ErrorTitle.Font = Enum.Font.GothamSemibold
-        ErrorTitle.TextXAlignment = Enum.TextXAlignment.Center
-        ErrorTitle.Parent = ErrorFrame
-
-        local ErrorMessage = Instance.new("TextLabel")
-        ErrorMessage.Size = UDim2.new(1, -10, 0, 40) -- Smaller height, subtract padding
-        ErrorMessage.Position = UDim2.new(0, 5, 0, 30) -- Position below title, add padding
-        ErrorMessage.BackgroundTransparency = 1
-        ErrorMessage.TextColor3 = Color3.fromRGB(255, 50, 50) -- Red
-        ErrorMessage.TextSize = 12
-        ErrorMessage.Text = "Distributor ID not set in script.\nPlease contact script provider."
-        ErrorMessage.Font = Enum.Font.Gotham
-        ErrorMessage.TextXAlignment = Enum.TextXAlignment.Center
-        ErrorMessage.TextYAlignment = Enum.TextYAlignment.Center
-        ErrorMessage.TextWrapped = true
-        ErrorMessage.Parent = ErrorFrame
-        return -- Stop initialization
+    -- Check if mandatory placeholders are replaced first
+    if not checkPlaceholders() then
+        -- checkPlaceholders function already created the error UI
+        return
     end
 
     local ui = createKeyUI()
@@ -298,12 +316,12 @@ local function initKeySystem()
 
         ui.StatusLabel.Text = "Verifying key..."
         ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
-         ui.KeyInput.Text = "" -- Clear input while verifying
+        ui.KeyInput.Text = "" -- Clear input while verifying - Optional
 
 
         -- Add a small delay to show the verifying status
         task.delay(1.0, function() -- Reduced delay slightly
-            local isValid, status = verifyKey(key, distributorId) -- Pass distributorId to verification
+            local isValid, status = verifyKey(key, DISTRIBUTOR_ID) -- Pass distributorId to verification
 
             if isValid then
                 ui.StatusLabel.Text = "Key verified successfully!"
@@ -334,8 +352,6 @@ local function initKeySystem()
                     ui.StatusLabel.Text = "Invalid key or Distributor ID mismatch! Get a new key."
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
                 end
-                 -- Make sure input is selectable again after failed attempt, restore key if needed? Or just clear.
-                 -- ui.KeyInput.Text = key -- Option to restore key
                  ui.KeyInput:CaptureFocus() -- Keep focus on input field
             end
         end)
@@ -344,48 +360,5 @@ local function initKeySystem()
     return ui
 end
 
--- Start the key system UI only if distributorId is properly set in the script
--- Moved the check outside initKeySystem to prevent creating UI if ID is not set
--- Added a check for empty string after trimming whitespace
-local trimmedDistributorId = distributorId:gsub("%s+", "")
-if trimmedDistributorId and trimmedDistributorId ~= 'YOUR_DISTRIBUTOR_ID' then
-     initKeySystem()
-else
-     warn("Distributor ID is not set or is placeholder in the script!")
-     -- Create a minimal UI just to show an error message
-     local ErrorGui = Instance.new("ScreenGui")
-     ErrorGui.Name = "KeySystemErrorUI"
-     ErrorGui.Parent = game:GetService("CoreGui")
-     local ErrorFrame = Instance.new("Frame") -- Use a frame for better centering/styling
-     ErrorFrame.Size = UDim2.new(0, 300, 0, 80)
-     ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -40)
-     ErrorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-     ErrorFrame.BorderSizePixel = 1
-     ErrorFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
-     ErrorFrame.Parent = ErrorGui
-     ErrorFrame.Draggable = true
-
-     local ErrorTitle = Instance.new("TextLabel")
-     ErrorTitle.Size = UDim2.new(1, 0, 0, 30)
-     ErrorTitle.Position = UDim2.new(0, 0, 0, 0)
-     ErrorTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-     ErrorTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-     ErrorTitle.TextSize = 16
-     ErrorTitle.Text = "Key System Error"
-     ErrorTitle.Font = Enum.Font.GothamSemibold
-     ErrorTitle.TextXAlignment = Enum.TextXAlignment.Center
-     ErrorTitle.Parent = ErrorFrame
-
-     local ErrorMessage = Instance.new("TextLabel")
-     ErrorMessage.Size = UDim2.new(1, -10, 0, 40) -- Smaller height, subtract padding
-     ErrorMessage.Position = UDim2.new(0, 5, 0, 30) -- Position below title, add padding
-     ErrorMessage.BackgroundTransparency = 1
-     ErrorMessage.TextColor3 = Color3.fromRGB(255, 50, 50) -- Red
-     ErrorMessage.TextSize = 12
-     ErrorMessage.Text = "Distributor ID not set in script.\nPlease contact script provider."
-     ErrorMessage.Font = Enum.Font.Gotham
-     ErrorMessage.TextXAlignment = Enum.TextXAlignment.Center
-     ErrorMessage.TextYAlignment = Enum.TextYAlignment.Center
-     ErrorMessage.TextWrapped = true
-     ErrorMessage.Parent = ErrorFrame
-end
+-- Start the key system
+initKeySystem()
