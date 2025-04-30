@@ -2,7 +2,7 @@
 -- Configure your Distributor ID here:
 -- Use "" or "default" for keys generated without a specific distributor ID (main website page).
 -- Use the specific Distributor ID (e.g., "cbbda565") for keys generated via a distributor link.
-local DISTRIBUTOR_ID = "DISTRIBUTOR_ID_HERE" -- <-- YOU MUST REPLACE THIS!
+local DISTRIBUTOR_ID = "cbbda565" -- <-- YOU MUST REPLACE THIS!
 
 -- Define the base URL for your key system website and verification endpoint
 -- REMEMBER TO REPLACE THESE WITH YOUR ACTUAL WEBSITE URLs!
