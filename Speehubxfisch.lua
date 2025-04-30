@@ -2,16 +2,18 @@
 -- Configure your Distributor ID here:
 -- Use "" or "default" for keys generated without a specific distributor ID (main website page).
 -- Use the specific Distributor ID (e.g., "cbbda565") for keys generated via a distributor link.
-local DISTRIBUTOR_ID = "cbbda565" -- <-- YOU MUST REPLACE THIS!
+local DISTRIBUTOR_ID = "DISTRIBUTOR_ID_HERE" -- <-- YOU MUST REPLACE THIS!
 
 -- Define the base URL for your key system website and verification endpoint
+-- REMEMBER TO REPLACE THESE WITH YOUR ACTUAL WEBSITE URLs!
 local KEY_WEBSITE_BASE_URL = "https://wordpress-1442530-5466128.cloudwaysapps.com/" -- Your website base URL (e.g., https://yourdomain.com/)
 local VERIFICATION_BASE_URL = "https://wordpress-1442530-5466128.cloudwaysapps.com/?verify=1" -- Your verification endpoint (e.g., https://yourdomain.com/?verify=1)
 
 -- Require necessary services
 local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
-local LocalPlayer = game:GetService("Players").LocalPlayer
+local Players = game:GetService("Players") -- Get Players service
+local LocalPlayer = Players.LocalPlayer -- Get LocalPlayer from Players service
 local UserInputService = game:GetService("UserInputService")
 
 -- Create the key verification UI
@@ -22,6 +24,7 @@ local function createKeyUI()
         existingUi:Destroy()
     end
 
+    -- Create basic UI elements
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
     local Title = Instance.new("TextLabel")
@@ -33,24 +36,26 @@ local function createKeyUI()
 
     -- Configure ScreenGui
     ScreenGui.Name = "KeySystemUI"
-    ScreenGui.Parent = CoreGui
+    ScreenGui.Parent = CoreGui -- Parent to CoreGui so it's visible in any game/place
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    ScreenGui.DisplayOrder = 1000 -- Make sure it's on top of other GUIs
+    ScreenGui.DisplayOrder = 1000 -- Make sure it's on top of most other GUIs
 
-    -- Configure MainFrame
+    -- Configure MainFrame (the main window)
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42) -- Dark Blue/Gray
     MainFrame.BackgroundTransparency = 0.1 -- Slightly transparent
-    MainFrame.BorderColor3 = Color3.fromRGB(40, 60, 90)
+    MainFrame.BorderColor3 = Color3.fromRGB(40, 60, 90) -- Darker Border
     MainFrame.BorderSizePixel = 1
-    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-    MainFrame.Size = UDim2.new(0, 300, 0, 220)
+    -- Center the frame dynamically based on screen size
+    MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    MainFrame.Size = UDim2.new(0, 300, 0, 220) -- Size of the frame
     MainFrame.Draggable = true -- Make it draggable
     MainFrame.CornerRadius = UDim.new(0, 8) -- Rounded corners
     MainFrame.ClipsDescendants = true -- Prevents children from overflowing corners
 
-    -- Add a UI Gradient for a subtle look
+    -- Add a UI Gradient for a subtle background look (Optional but nice)
     local FrameGradient = Instance.new("UIGradient")
     FrameGradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 37, 56)),
@@ -58,101 +63,114 @@ local function createKeyUI()
     }
     FrameGradient.Parent = MainFrame
 
-    -- Configure Title
+    -- Configure Title Label
     Title.Name = "Title"
     Title.Parent = MainFrame
     Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59) -- Slightly Lighter Dark Blue/Gray
     Title.BackgroundTransparency = 0 -- Opaque background
     Title.BorderSizePixel = 0
-    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.Size = UDim2.new(1, 0, 0, 30) -- Full width of parent frame, 30px height
+    Title.Position = UDim2.new(0,0,0,0) -- Position at the top
     Title.Font = Enum.Font.GothamSemibold
     Title.Text = "Script Key System"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
     Title.TextSize = 16.000
     Title.TextWrapped = true
-    Title.TextXAlignment = Enum.TextXAlignment.Center
-    Title.TextYAlignment = Enum.TextYAlignment.Center
+    Title.TextXAlignment = Enum.TextXAlignment.Center -- Center text horizontally
+    Title.TextYAlignment = Enum.TextYAlignment.Center -- Center text vertically
 
-    -- Add a UI Corner for the title background
+    -- Add a UI Corner for the title background (applies to the bottom edge relative to Title position)
     local TitleCorner = Instance.new("UICorner")
     TitleCorner.CornerRadius = UDim.new(0, 8)
     TitleCorner.Parent = Title -- Applies corner to the bottom edge implicitly
 
-    -- Configure Distributor Label (if distributor ID is set)
+    -- Configure Distributor Label
     local displayDistributorId = (DISTRIBUTOR_ID == "" or DISTRIBUTOR_ID == "DISTRIBUTOR_ID_HERE") and "default" or DISTRIBUTOR_ID
     DistributorLabel.Name = "DistributorLabel"
     DistributorLabel.Parent = MainFrame
-    DistributorLabel.BackgroundTransparency = 1
-    DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0) -- Position slightly below title
-    DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
-    DistributorLabel.Font = Enum.Font.Gotham
+    DistributorLabel.BackgroundTransparency = 1 -- Fully transparent background
+    DistributorLabel.Position = UDim2.new(0.5, 0, 0, 35) -- Position 35px down from top (below Title), centered horizontally
+    DistributorLabel.AnchorPoint = Vector2.new(0.5, 0) -- Anchor center-top
+    DistributorLabel.Size = UDim2.new(1, -40, 0, 20) -- Full width minus padding, 20px height
+    DistributorLabel.Font = Enum.Font.Gotham -- Consistent font
     DistributorLabel.Text = "Distributor: " .. displayDistributorId
-    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255) -- Muted Purple/Blue
+    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255) -- Muted Purple/Blue text
     DistributorLabel.TextSize = 10.000
     DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center
     DistributorLabel.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Configure KeyInput
+    -- Configure Key Input TextBox
     KeyInput.Name = "KeyInput"
     KeyInput.Parent = MainFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Slightly Lighter Dark Blue/Gray
     KeyInput.BackgroundTransparency = 0.2 -- Semi-transparent
     KeyInput.BorderColor3 = Color3.fromRGB(60, 80, 110)
     KeyInput.BorderSizePixel = 1
-    KeyInput.Position = UDim2.new(0.5, -125, 0.35, 0)
-    KeyInput.Size = UDim2.new(0, 250, 0, 30)
-    KeyInput.Font = Enum.Font.SourceSans
+    KeyInput.Position = UDim2.new(0.5, 0, 0, 65) -- Position below DistributorLabel, centered horizontally
+    KeyInput.AnchorPoint = Vector2.new(0.5, 0) -- Anchor center-top
+    KeyInput.Size = UDim2.new(0, 250, 0, 30) -- 250px width, 30px height
+    KeyInput.Font = Enum.Font.SourceSans -- Clearer font for input
     KeyInput.PlaceholderText = "Enter your key here..."
-    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 160, 170)
+    KeyInput.PlaceholderColor3 = Color3.fromRGB(150, 160, 170) -- Gray placeholder text
     KeyInput.Text = ""
-    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+    KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
     KeyInput.TextSize = 14.000
     KeyInput.ClearTextOnFocus = false -- Don't clear text when focused
-    KeyInput.CornerRadius = UDim.new(0, 6)
+    KeyInput.CornerRadius = UDim.new(0, 6) -- Rounded corners for input
+    KeyInput.TextXAlignment = Enum.TextXAlignment.Center -- Center input text
+    KeyInput.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Configure SubmitButton
+    -- Configure Submit Button
     SubmitButton.Name = "SubmitButton"
     SubmitButton.Parent = MainFrame
     SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
-    SubmitButton.BackgroundTransparency = 0
+    SubmitButton.BackgroundTransparency = 0 -- Opaque
     SubmitButton.BorderColor3 = Color3.fromRGB(25, 150, 70)
     SubmitButton.BorderSizePixel = 1
-    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0)
-    SubmitButton.Size = UDim2.new(0, 120, 0, 30)
+    SubmitButton.Position = UDim2.new(0.5, 0, 0, 110) -- Position below KeyInput, centered
+    SubmitButton.AnchorPoint = Vector2.new(0.5, 0) -- Anchor center-top
+    SubmitButton.Size = UDim2.new(0, 120, 0, 30) -- 120px width, 30px height
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
-    SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
     SubmitButton.TextSize = 14.000
-    SubmitButton.CornerRadius = UDim.new(0, 6)
+    SubmitButton.CornerRadius = UDim.new(0, 6) -- Rounded corners
+    SubmitButton.TextXAlignment = Enum.TextXAlignment.Center
+    SubmitButton.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Configure GetKeyButton
+    -- Configure Get Key Button
     GetKeyButton.Name = "GetKeyButton"
     GetKeyButton.Parent = MainFrame
-    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Dark Blue/Gray
-    GetKeyButton.BackgroundTransparency = 0
+    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Dark Blue/Gray (matches input)
+    GetKeyButton.BackgroundTransparency = 0 -- Opaque
     GetKeyButton.BorderColor3 = Color3.fromRGB(60, 80, 110)
     GetKeyButton.BorderSizePixel = 1
-    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0)
-    GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
+    GetKeyButton.Position = UDim2.new(0.5, 0, 0, 150) -- Position below SubmitButton, centered
+    GetKeyButton.AnchorPoint = Vector2.new(0.5, 0) -- Anchor center-top
+    GetKeyButton.Size = UDim2.new(0, 120, 0, 30) -- 120px width, 30px height
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
-    GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
     GetKeyButton.TextSize = 14.000
-    GetKeyButton.CornerRadius = UDim.new(0, 6)
+    GetKeyButton.CornerRadius = UDim.new(0, 6) -- Rounded corners
+    GetKeyButton.TextXAlignment = Enum.TextXAlignment.Center
+    GetKeyButton.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Configure StatusLabel
+
+    -- Configure Status Label
     StatusLabel.Name = "StatusLabel"
     StatusLabel.Parent = MainFrame
-    StatusLabel.BackgroundTransparency = 1
-    StatusLabel.Position = UDim2.new(0, 0, 0.9, 0)
-    StatusLabel.Size = UDim2.new(1, 0, 0, 20)
+    StatusLabel.BackgroundTransparency = 1 -- Fully transparent
+    StatusLabel.Position = UDim2.new(0.5, 0, 0, 190) -- Position near bottom, centered
+    StatusLabel.AnchorPoint = Vector2.new(0.5, 0) -- Anchor center-top
+    StatusLabel.Size = UDim2.new(1, -40, 0, 20) -- Full width minus margins, 20px height
     StatusLabel.Font = Enum.Font.Gotham
-    StatusLabel.Text = ""
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    StatusLabel.Text = "" -- Starts empty
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text (will change based on status)
     StatusLabel.TextSize = 12.000
     StatusLabel.TextXAlignment = Enum.TextXAlignment.Center
     StatusLabel.TextYAlignment = Enum.TextYAlignment.Center
-    StatusLabel.TextWrapped = true
+    StatusLabel.TextWrapped = true -- Allows text to wrap if too long
 
 
     return {
