@@ -121,11 +121,23 @@ local function verifyKey(key)
     -- Add key parameter
     url = url .. "&key=" .. key
     
+    -- Print the URL for debugging (remove in production)
+    print("Verification URL: " .. url)
+    
     local success, response = pcall(function()
         return game:HttpGet(url)
     end)
     
+    -- Print the response for debugging (remove in production)
     if success then
+        print("Response: " .. response)
+    else
+        print("Error: " .. tostring(response))
+    end
+    
+    if success then
+        response = string.gsub(response, "^%s*(.-)%s*$", "%1") -- Trim whitespace
+        
         if response == "valid" then
             return true, "valid"
         elseif response == "expired" then
@@ -139,7 +151,6 @@ local function verifyKey(key)
         return false, "error"
     end
 end
-
 -- Run the script after key verification
 local function runMainScript()
     -- Your actual script URL here
