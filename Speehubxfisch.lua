@@ -15,7 +15,7 @@ local scriptSourceUrl = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/
 
 
 -- Base URL for your key system website
-local websiteUrl = "https://wordpress-1442530-5469162.cloudwaysapps.com/" -- <-- Use your correct site URL here (without trailing slash)
+local websiteUrl = "https://wordpress-1442530-5469162.cloudwaysapps.com" -- <-- Use your correct site URL here (without trailing slash)
 
 -- Verification Endpoint URL
 local verificationUrl = websiteUrl .. "/?verify=1"
