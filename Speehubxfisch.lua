@@ -15,7 +15,7 @@ local scriptSourceUrl = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/
 
 
 -- Base URL for your key system website
-local websiteUrl = "https://wordpress-1442530-5469162.cloudwaysapps.com/"
+local websiteUrl = "https://wordpress-1442530-5469162.cloudwaysapps.com/" -- <-- Use your correct site URL here (without trailing slash)
 
 -- Verification Endpoint URL
 local verificationUrl = websiteUrl .. "/?verify=1"
@@ -44,7 +44,7 @@ local function createKeyUI()
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
+    MainFrame.Parent = ScreenGui -- PARENT MainFrame to ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     MainFrame.BorderSizePixel = 1
     MainFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
@@ -53,7 +53,7 @@ local function createKeyUI()
     MainFrame.Draggable = true -- Make it draggable
 
     Title.Name = "Title"
-    Title.Parent = MainFrame
+    Title.Parent = MainFrame -- PARENT Title to MainFrame
     Title.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     Title.BorderSizePixel = 0
     Title.Position = UDim2.new(0, 0, 0, 0)
@@ -66,7 +66,7 @@ local function createKeyUI()
     Title.TextXAlignment = Enum.TextXAlignment.Center
 
     DistributorLabel.Name = "DistributorLabel"
-    DistributorLabel.Parent = MainFrame
+    DistributorLabel.Parent = MainFrame -- PARENT DistributorLabel to MainFrame
     DistributorLabel.BackgroundTransparency = 1
     DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0)
     DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -79,7 +79,7 @@ local function createKeyUI()
 
 
     KeyInput.Name = "KeyInput"
-    KeyInput.Parent = MainFrame
+    KeyInput.Parent = MainFrame -- PARENT KeyInput to MainFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     KeyInput.BorderSizePixel = 1
     KeyInput.BorderColor3 = Color3.fromRGB(80, 80, 80)
@@ -97,7 +97,7 @@ local function createKeyUI()
 
 
     SubmitButton.Name = "SubmitButton"
-    SubmitButton.Parent = MainFrame
+    SubmitButton.Parent = MainFrame -- PARENT SubmitButton to MainFrame
     SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
     SubmitButton.BorderSizePixel = 0
     SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 15)
@@ -110,7 +110,7 @@ local function createKeyUI()
 
 
     GetKeyButton.Name = "GetKeyButton"
-    GetKeyButton.Parent = MainFrame
+    GetKeyButton.Parent = MainFrame -- PARENT GetKeyButton to MainFrame
     GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Blueish gray
     GetKeyButton.BorderSizePixel = 0
     GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 15)
@@ -123,7 +123,7 @@ local function createKeyUI()
 
 
     StatusLabel.Name = "StatusLabel"
-    StatusLabel.Parent = MainFrame
+    StatusLabel.Parent = MainFrame -- PARENT StatusLabel to MainFrame
     StatusLabel.BackgroundTransparency = 1
     StatusLabel.Position = UDim2.new(0, 0, 0.9, 15)
     StatusLabel.Size = UDim2.new(1, 0, 0, 20)
@@ -137,6 +137,9 @@ local function createKeyUI()
 
     return {
         ScreenGui = ScreenGui,
+        MainFrame = MainFrame, -- Included MainFrame in the returned table
+        Title = Title,
+        DistributorLabel = DistributorLabel,
         KeyInput = KeyInput,
         SubmitButton = SubmitButton,
         GetKeyButton = GetKeyButton,
