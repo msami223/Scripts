@@ -4,14 +4,14 @@
     Configuration:
     - WEBSITE_URL: Your WordPress website URL
     - SCRIPT_ID: Your script identifier (used for tracking)
-    - DISTRIBUTOR_ID: Optional specific distributor ID (leave as 0 for random distributor)
+    - DISTRIBUTOR_ID: Specific distributor ID (alphanumeric code) or leave empty for random distributor
     - SCRIPT_URL: The URL of the script to execute after key verification
 ]]
 
 -- Configuration (Edit these values)
 local WEBSITE_URL = "https://wordpress-1442530-5470290.cloudwaysapps.com"
 local SCRIPT_ID = "blox-fruits" -- Change this to your script identifier
-local DISTRIBUTOR_ID = "1" -- Set to specific distributor ID or leave as 0 for random distributor
+local DISTRIBUTOR_ID = "BCrKgLfr" -- Set to specific distributor ID or leave empty for random distributor
 local SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- URL of your script to execute
 
 -- Create the key verification UI
@@ -218,16 +218,24 @@ end
 local function verifyKey(key)
     -- Build the verification URL with distributor ID
     local url = WEBSITE_URL .. "/?verify=1&key=" .. key
-    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "0" and DISTRIBUTOR_ID ~= "" then
+    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "" then
         url = url .. "&d=" .. DISTRIBUTOR_ID
     end
+    
+    print("Sending verification request to: " .. url) -- Debug: Print the full URL
     
     local success, response = pcall(function()
         return game:HttpGet(url)
     end)
     
+    print("Raw response: '" .. tostring(response) .. "'") -- Debug: Print raw response
+    
     if success then
+        -- Trim any whitespace from the response
+        response = response:gsub("^%s*(.-)%s*$", "%1")
+        
         print("Verification response: " .. response) -- Debug output
+        
         if response == "valid" then
             return true, "valid"
         elseif response == "expired" then
@@ -343,7 +351,7 @@ local function initKeySystem()
     local ui = createKeyUI()
     
     -- If distributor ID is specified, show it in the UI
-    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "0" and DISTRIBUTOR_ID ~= "" then
+    if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "" then
         ui.DistributorLabel.Text = "Distributor: " .. DISTRIBUTOR_ID
     end
     
@@ -371,9 +379,9 @@ local function initKeySystem()
         
         -- Generate the key website URL with distributor ID if specified
         local keyWebsite = WEBSITE_URL
-        if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "0" and DISTRIBUTOR_ID ~= "" then
+        if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "" then
             keyWebsite = keyWebsite .. "/?d=" .. DISTRIBUTOR_ID
-        end
+        }
         
         -- Copy URL to clipboard
         local clipboardSuccess = safeSetClipboard(keyWebsite)
