@@ -23,6 +23,14 @@ local MAIN_SCRIPT_SOURCE_URL = "https://raw.githubusercontent.com/AhmadV99/Speed
 -- =============================================================================
 --                          DO NOT EDIT BELOW THIS LINE
 -- =============================================================================
+-- Key System Script for Roblox with Distributor Support
+-- This script uses your WordPress Key System plugin for key generation and verification.
+
+-- =============================================================================
+--                          !!! IMPORTANT !!!
+--           REPLACE THE PLACEHOLDERS BELOW FOR EACH DISTRIBUTOR
+-- =============================================================================
+
 -- Construct full URLs using the base URL
 local verificationUrl = WEBSITE_BASE_URL .. "/?verify=1"
 local getKeyUrl = WEBSITE_BASE_URL .. "/?dist_id=" .. DISTRIBUTOR_ID
@@ -85,8 +93,7 @@ local function checkPlaceholders()
     return true -- Indicate success
 end
 
-
--- Create the key verification UI
+-- Create the key verification UI (using UI from first script)
 local function createKeyUI()
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
@@ -95,109 +102,79 @@ local function createKeyUI()
     local SubmitButton = Instance.new("TextButton")
     local GetKeyButton = Instance.new("TextButton")
     local StatusLabel = Instance.new("TextLabel")
-    local DistributorLabel = Instance.new("TextLabel") -- Added DistributorLabel element
-
+    
     -- Configure ScreenGui
     ScreenGui.Name = "KeySystemUI"
     ScreenGui.Parent = game:GetService("CoreGui")
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
+    
     -- Configure MainFrame
     MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui -- Parent MainFrame to ScreenGui
+    MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100) -- Adjusted Y position slightly
-    MainFrame.Size = UDim2.new(0, 300, 0, 200) -- Keeping original frame size
-
+    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    MainFrame.Size = UDim2.new(0, 300, 0, 200)
+    
     -- Configure Title
     Title.Name = "Title"
-    Title.Parent = MainFrame -- Parent Title to MainFrame
+    Title.Parent = MainFrame
     Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
     Title.BorderSizePixel = 0
-    Title.Position = UDim2.new(0, 0, 0, 0) -- Position at top
     Title.Size = UDim2.new(1, 0, 0, 30)
     Title.Font = Enum.Font.GothamSemibold
     Title.Text = "Script Key System"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 16.000
-    Title.TextWrapped = true
-    Title.TextXAlignment = Enum.TextXAlignment.Center -- Center the title
-
-    -- Configure Distributor Label
-    DistributorLabel.Name = "DistributorLabel"
-    DistributorLabel.Parent = MainFrame -- Parent DistributorLabel to MainFrame
-    DistributorLabel.BackgroundTransparency = 1
-    DistributorLabel.Position = UDim2.new(0, 0, 0.15, 0) -- Position below title
-    DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
-    DistributorLabel.Font = Enum.Font.Gotham
-    DistributorLabel.Text = "Distributor: " .. DISTRIBUTOR_ID -- Display distributor ID
-    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
-    DistributorLabel.TextSize = 10.000
-    DistributorLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the ID
-    DistributorLabel.TextWrapped = true
-
-
+    
     -- Configure KeyInput
     KeyInput.Name = "KeyInput"
-    KeyInput.Parent = MainFrame -- Parent KeyInput to MainFrame
+    KeyInput.Parent = MainFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
     KeyInput.BorderSizePixel = 0
-    KeyInput.Position = UDim2.new(0.5, -125, 0.35, -10) -- Adjusted Y position to fit DistributorLabel
+    KeyInput.Position = UDim2.new(0.5, -125, 0.3, 0)
     KeyInput.Size = UDim2.new(0, 250, 0, 30)
     KeyInput.Font = Enum.Font.Gotham
     KeyInput.PlaceholderText = "Enter your key here..."
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.TextSize = 14.000
-    KeyInput.ClearTextOnFocus = false
-    KeyInput.TextXAlignment = Enum.TextXAlignment.Left
-    KeyInput.TextYAlignment = Enum.TextYAlignment.Center
-    KeyInput.Padding = UDim.new(0, 5)
-
-
+    
     -- Configure SubmitButton
     SubmitButton.Name = "SubmitButton"
-    SubmitButton.Parent = MainFrame -- Parent SubmitButton to MainFrame
-    SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94) -- Green
+    SubmitButton.Parent = MainFrame
+    SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
     SubmitButton.BorderSizePixel = 0
-    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, -10) -- Adjusted Y position
+    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0)
     SubmitButton.Size = UDim2.new(0, 120, 0, 30)
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
     SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitButton.TextSize = 14.000
-    SubmitButton.AutoButtonColor = true
-
-
+    
     -- Configure GetKeyButton
     GetKeyButton.Name = "GetKeyButton"
-    GetKeyButton.Parent = MainFrame -- Parent GetKeyButton to MainFrame
-    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85) -- Blueish gray
+    GetKeyButton.Parent = MainFrame
+    GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
     GetKeyButton.BorderSizePixel = 0
-    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, -10) -- Adjusted Y position
+    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0)
     GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
     GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     GetKeyButton.TextSize = 14.000
-    GetKeyButton.AutoButtonColor = true
-
-
+    
     -- Configure StatusLabel
     StatusLabel.Name = "StatusLabel"
-    StatusLabel.Parent = MainFrame -- Parent StatusLabel to MainFrame
+    StatusLabel.Parent = MainFrame
     StatusLabel.BackgroundTransparency = 1
-    StatusLabel.Position = UDim2.new(0, 0, 0.9, -10) -- Adjusted Y position
+    StatusLabel.Position = UDim2.new(0, 0, 0.9, 0)
     StatusLabel.Size = UDim2.new(1, 0, 0, 20)
     StatusLabel.Font = Enum.Font.Gotham
     StatusLabel.Text = ""
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- Default white
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     StatusLabel.TextSize = 12.000
-    StatusLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the status text
-    StatusLabel.TextWrapped = true -- Wrap long status messages
-
-
+    
     return {
         ScreenGui = ScreenGui,
         KeyInput = KeyInput,
@@ -207,11 +184,10 @@ local function createKeyUI()
     }
 end
 
--- Verify key with server
+-- Verify key with server (from second script, improved version)
 local function verifyKey(key)
     -- Use the global verificationUrl constructed at the top
     local fullVerificationUrl = verificationUrl .. "&key=" .. key .. "&dist_id=" .. DISTRIBUTOR_ID -- Include dist_id
-
 
     local success, response = pcall(function()
         -- Using game:HttpGet is common in exploit contexts
@@ -248,7 +224,7 @@ local function verifyKey(key)
     end
 end
 
--- Run the script after key verification
+-- Run the script after key verification (from second script)
 local function runMainScript()
     -- The URL to the main script source is defined at the top of the file
     local scriptSourceUrl = MAIN_SCRIPT_SOURCE_URL
@@ -286,7 +262,7 @@ local function runMainScript()
     end
 end
 
--- Initialize key system and UI
+-- Initialize key system and UI (merged functionality)
 local function initKeySystem()
     -- Check if mandatory placeholders are replaced first
     if not checkPlaceholders() then
@@ -295,17 +271,17 @@ local function initKeySystem()
     end
 
     local ui = createKeyUI()
-
-    -- Handle Get Key button
+    
+    -- Handle Get Key button (using logic from second script)
     ui.GetKeyButton.MouseButton1Click:Connect(function()
         -- The getKeyUrl already includes the distributorId
         setclipboard(getKeyUrl)
-
-        ui.StatusLabel.Text = "Key website URL copied! Paste in your browser."
-        ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green
+        
+        ui.StatusLabel.Text = "Key website URL copied to clipboard! Paste in your browser."
+        ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
     end)
-
-    -- Handle Submit button
+    
+    -- Handle Submit button (using logic from second script)
     ui.SubmitButton.MouseButton1Click:Connect(function()
         local key = ui.KeyInput.Text:gsub("%s+", "") -- Trim whitespace from input
 
@@ -318,12 +294,10 @@ local function initKeySystem()
 
         ui.StatusLabel.Text = "Verifying key..."
         ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
-        ui.KeyInput.Text = "" -- Clear input while verifying - Optional
 
-
-        -- Add a small delay to show the verifying status
-        task.delay(1.0, function() -- Reduced delay slightly
-            local isValid, status = verifyKey(key, DISTRIBUTOR_ID) -- Pass distributorId to verification
+        -- Add a small delay to show the verifying status (like in first script)
+        task.delay(1.5, function()
+            local isValid, status = verifyKey(key) -- Pass key to verification
 
             if isValid then
                 ui.StatusLabel.Text = "Key verified successfully!"
@@ -337,31 +311,25 @@ local function initKeySystem()
             else
                 -- Update messages based on server response status
                 if status == "expired" then
-                    ui.StatusLabel.Text = "This key has expired! Keys expire after " .. keyExpirationHours .. " hours. Get a new key."
+                    ui.StatusLabel.Text = "This key has expired! Keys expire after " .. keyExpirationHours .. " hours."
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
-                -- The server side is NOT currently checking or returning 'used' during verification
-                -- If you add 'used' check back on server, uncomment this:
-                -- elseif status == "used" then
-                --     ui.StatusLabel.Text = "This key has already been used!"
-                --     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
                 elseif status == "network_error" then
-                     ui.StatusLabel.Text = "Verification failed: Network error." -- Simplified message for user
+                     ui.StatusLabel.Text = "Verification failed: Network error."
                      ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0) -- Orange
                 elseif status == "server_error" or status == "unexpected_response" then
-                     ui.StatusLabel.Text = "Verification failed: Server error." -- Simplified message for user
+                     ui.StatusLabel.Text = "Verification failed: Server error."
                      ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0) -- Orange
                 else -- This covers "invalid" and any other unknown status
-                    ui.StatusLabel.Text = "Invalid key or Distributor ID mismatch! Get a new key."
+                    ui.StatusLabel.Text = "Invalid key! Please try again."
                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
                 end
                  ui.KeyInput:CaptureFocus() -- Keep focus on input field
             end
         end)
     end)
-
+    
     return ui
 end
 
 -- Start the key system
--- The checkPlaceholders function is called first to ensure configuration
 initKeySystem()
