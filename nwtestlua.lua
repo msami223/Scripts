@@ -1,99 +1,20 @@
--- Key System Script for Roblox with Distributor Support
--- This script uses your WordPress Key System plugin for key generation and verification.
+--[[
+    Multi-Distributor Key System for Roblox Scripts
+    
+    Configuration:
+    - WEBSITE_URL: Your WordPress website URL
+    - SCRIPT_ID: Your script identifier (used for tracking)
+    - DISTRIBUTOR_ID: Optional specific distributor ID (leave as 0 for random distributor)
+    - SCRIPT_URL: The URL of the script to execute after key verification
+]]
 
--- =============================================================================
---                          !!! IMPORTANT !!!
---           REPLACE THE PLACEHOLDERS BELOW FOR EACH DISTRIBUTOR
--- =============================================================================
+-- Configuration (Edit these values)
+local WEBSITE_URL = "https://wordpress-1442530-5470290.cloudwaysapps.com"
+local SCRIPT_ID = "blox-fruits" -- Change this to your script identifier
+local DISTRIBUTOR_ID = "samiullah" -- Set to specific distributor ID or leave as 0 for random distributor
+local SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- URL of your script to execute
 
--- 1. REPLACE "YOUR_WEBSITE_URL_HERE" with the base URL of your WordPress site.
---    Example: "https://wordpress-1442530-5468918.cloudwaysapps.com"
-local WEBSITE_BASE_URL = "https://wordpress-1442530-5469162.cloudwaysapps.com" -- <-- REPLACE THIS
-
--- 2. REPLACE "YOUR_DISTRIBUTOR_ID_HERE" with the unique ID assigned to this distributor.
---    You can find this ID on your WordPress Key System -> Distributors page.
---    Example: "5E8E53"
-local DISTRIBUTOR_ID = "5E8E53" -- <-- REPLACE THIS
-
--- 3. REPLACE "YOUR_MAIN_SCRIPT_URL_HERE" with the ACTUAL URL of your main script source.
---    This is the script that will be executed after successful key verification.
---    Example: "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"
-local MAIN_SCRIPT_SOURCE_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- <-- REPLACE THIS
-
--- =============================================================================
---                          DO NOT EDIT BELOW THIS LINE
--- =============================================================================
--- Key System Script for Roblox with Distributor Support
--- This script uses your WordPress Key System plugin for key generation and verification.
-
--- =============================================================================
---                          !!! IMPORTANT !!!
---           REPLACE THE PLACEHOLDERS BELOW FOR EACH DISTRIBUTOR
--- =============================================================================
-
--- Construct full URLs using the base URL
-local verificationUrl = WEBSITE_BASE_URL .. "/?verify=1"
-local getKeyUrl = WEBSITE_BASE_URL .. "/?dist_id=" .. DISTRIBUTOR_ID
-
--- Key Expiration displayed in UI (informative) - Defaults to 24 hours.
--- The actual expiration is determined by your WordPress settings.
-local keyExpirationHours = 24 -- Can update manually to match WP settings if needed
-
--- Check if placeholders are still present before proceeding
-local function checkPlaceholders()
-    local placeholders_missing = false
-    local missing_items = {}
-
-    if WEBSITE_BASE_URL == "YOUR_WEBSITE_URL_HERE" then table.insert(missing_items, "WEBSITE_BASE_URL") placeholders_missing = true end
-    if DISTRIBUTOR_ID == "YOUR_DISTRIBUTOR_ID_HERE" then table.insert(missing_items, "DISTRIBUTOR_ID") placeholders_missing = true end
-    if MAIN_SCRIPT_SOURCE_URL == "YOUR_MAIN_SCRIPT_URL_HERE" then table.insert(missing_items, "MAIN_SCRIPT_SOURCE_URL") placeholders_missing = true end
-
-    if placeholders_missing then
-        warn("Key System Error: Placeholders are not replaced in the script!")
-        local errorMessageText = "Script is not configured.\nPlease replace: " .. table.concat(missing_items, ", ") .. "\nContact script provider."
-
-        -- Create a minimal error UI
-        local ErrorGui = Instance.new("ScreenGui")
-        ErrorGui.Name = "KeySystemErrorUI"
-        ErrorGui.Parent = game:GetService("CoreGui")
-        local ErrorFrame = Instance.new("Frame")
-        ErrorFrame.Size = UDim2.new(0, 300, 0, 120) -- Increased size to fit more text
-        ErrorFrame.Position = UDim2.new(0.5, -150, 0.5, -60) -- Adjusted position
-        ErrorFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        ErrorFrame.BorderSizePixel = 1
-        ErrorFrame.BorderColor3 = Color3.fromRGB(60, 60, 60)
-        ErrorFrame.Parent = ErrorGui
-        ErrorFrame.Draggable = true
-
-        local ErrorTitle = Instance.new("TextLabel")
-        ErrorTitle.Size = UDim2.new(1, 0, 0, 30)
-        ErrorTitle.Position = UDim2.new(0, 0, 0, 0)
-        ErrorTitle.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-        ErrorTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
-        ErrorTitle.TextSize = 16
-        ErrorTitle.Text = "Script Configuration Error"
-        ErrorTitle.Font = Enum.Font.GothamSemibold
-        ErrorTitle.TextXAlignment = Enum.TextXAlignment.Center
-        ErrorTitle.Parent = ErrorFrame
-
-        local ErrorMessage = Instance.new("TextLabel")
-        ErrorMessage.Size = UDim2.new(1, -20, 0, 80) -- Size relative to frame, with padding
-        ErrorMessage.Position = UDim2.new(0, 10, 0, 30) -- Position below title, with padding
-        ErrorMessage.BackgroundTransparency = 1
-        ErrorMessage.TextColor3 = Color3.fromRGB(255, 50, 50) -- Red
-        ErrorMessage.TextSize = 12
-        ErrorMessage.Text = errorMessageText -- Display specific missing items
-        ErrorMessage.Font = Enum.Font.Gotham
-        ErrorMessage.TextXAlignment = Enum.TextXAlignment.Center
-        ErrorMessage.TextYAlignment = Enum.TextYAlignment.Center
-        ErrorMessage.TextWrapped = true
-        ErrorMessage.Parent = ErrorFrame
-        return false -- Indicate failure
-    end
-    return true -- Indicate success
-end
-
--- Create the key verification UI (using UI from first script)
+-- Create the key verification UI
 local function createKeyUI()
     local ScreenGui = Instance.new("ScreenGui")
     local MainFrame = Instance.new("Frame")
@@ -102,6 +23,7 @@ local function createKeyUI()
     local SubmitButton = Instance.new("TextButton")
     local GetKeyButton = Instance.new("TextButton")
     local StatusLabel = Instance.new("TextLabel")
+    local DistributorLabel = Instance.new("TextLabel")
     
     -- Configure ScreenGui
     ScreenGui.Name = "KeySystemUI"
@@ -113,219 +35,353 @@ local function createKeyUI()
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Color3.fromRGB(15, 23, 42)
     MainFrame.BorderSizePixel = 0
-    MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-    MainFrame.Size = UDim2.new(0, 300, 0, 200)
+    MainFrame.Position = UDim2.new(0.5, -175, 0.5, -125)
+    MainFrame.Size = UDim2.new(0, 350, 0, 250)
+    MainFrame.ClipsDescendants = true
+    
+    -- Add corner radius to MainFrame
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.Parent = MainFrame
     
     -- Configure Title
     Title.Name = "Title"
     Title.Parent = MainFrame
     Title.BackgroundColor3 = Color3.fromRGB(30, 41, 59)
     Title.BorderSizePixel = 0
-    Title.Size = UDim2.new(1, 0, 0, 30)
+    Title.Size = UDim2.new(1, 0, 0, 40)
     Title.Font = Enum.Font.GothamSemibold
     Title.Text = "Script Key System"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 16.000
+    Title.TextSize = 18.000
+    
+    -- Add corner radius to Title
+    local TitleCorner = Instance.new("UICorner")
+    TitleCorner.CornerRadius = UDim.new(0, 10)
+    TitleCorner.Parent = Title
     
     -- Configure KeyInput
     KeyInput.Name = "KeyInput"
     KeyInput.Parent = MainFrame
     KeyInput.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
     KeyInput.BorderSizePixel = 0
-    KeyInput.Position = UDim2.new(0.5, -125, 0.3, 0)
-    KeyInput.Size = UDim2.new(0, 250, 0, 30)
+    KeyInput.Position = UDim2.new(0.5, -150, 0.35, 0)
+    KeyInput.Size = UDim2.new(0, 300, 0, 40)
     KeyInput.Font = Enum.Font.Gotham
     KeyInput.PlaceholderText = "Enter your key here..."
     KeyInput.Text = ""
     KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
     KeyInput.TextSize = 14.000
     
+    -- Add corner radius to KeyInput
+    local KeyInputCorner = Instance.new("UICorner")
+    KeyInputCorner.CornerRadius = UDim.new(0, 6)
+    KeyInputCorner.Parent = KeyInput
+    
     -- Configure SubmitButton
     SubmitButton.Name = "SubmitButton"
     SubmitButton.Parent = MainFrame
     SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
     SubmitButton.BorderSizePixel = 0
-    SubmitButton.Position = UDim2.new(0.5, -60, 0.55, 0)
-    SubmitButton.Size = UDim2.new(0, 120, 0, 30)
+    SubmitButton.Position = UDim2.new(0.5, -140, 0.55, 0)
+    SubmitButton.Size = UDim2.new(0, 130, 0, 40)
     SubmitButton.Font = Enum.Font.GothamSemibold
     SubmitButton.Text = "Submit Key"
     SubmitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitButton.TextSize = 14.000
+    
+    -- Add corner radius to SubmitButton
+    local SubmitCorner = Instance.new("UICorner")
+    SubmitCorner.CornerRadius = UDim.new(0, 6)
+    SubmitCorner.Parent = SubmitButton
     
     -- Configure GetKeyButton
     GetKeyButton.Name = "GetKeyButton"
     GetKeyButton.Parent = MainFrame
     GetKeyButton.BackgroundColor3 = Color3.fromRGB(51, 65, 85)
     GetKeyButton.BorderSizePixel = 0
-    GetKeyButton.Position = UDim2.new(0.5, -60, 0.75, 0)
-    GetKeyButton.Size = UDim2.new(0, 120, 0, 30)
+    GetKeyButton.Position = UDim2.new(0.5, 10, 0.55, 0)
+    GetKeyButton.Size = UDim2.new(0, 130, 0, 40)
     GetKeyButton.Font = Enum.Font.GothamSemibold
     GetKeyButton.Text = "Get Key"
     GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     GetKeyButton.TextSize = 14.000
     
+    -- Add corner radius to GetKeyButton
+    local GetKeyCorner = Instance.new("UICorner")
+    GetKeyCorner.CornerRadius = UDim.new(0, 6)
+    GetKeyCorner.Parent = GetKeyButton
+    
     -- Configure StatusLabel
     StatusLabel.Name = "StatusLabel"
     StatusLabel.Parent = MainFrame
     StatusLabel.BackgroundTransparency = 1
-    StatusLabel.Position = UDim2.new(0, 0, 0.9, 0)
+    StatusLabel.Position = UDim2.new(0, 0, 0.75, 0)
     StatusLabel.Size = UDim2.new(1, 0, 0, 20)
     StatusLabel.Font = Enum.Font.Gotham
     StatusLabel.Text = ""
     StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    StatusLabel.TextSize = 12.000
+    StatusLabel.TextSize = 14.000
+    
+    -- Configure DistributorLabel
+    DistributorLabel.Name = "DistributorLabel"
+    DistributorLabel.Parent = MainFrame
+    DistributorLabel.BackgroundTransparency = 1
+    DistributorLabel.Position = UDim2.new(0, 0, 0.85, 0)
+    DistributorLabel.Size = UDim2.new(1, 0, 0, 20)
+    DistributorLabel.Font = Enum.Font.Gotham
+    DistributorLabel.Text = ""
+    DistributorLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    DistributorLabel.TextSize = 12.000
+    
+    -- Add visual effects
+    local function createGlow()
+        local Glow = Instance.new("ImageLabel")
+        Glow.Name = "Glow"
+        Glow.Parent = MainFrame
+        Glow.BackgroundTransparency = 1
+        Glow.Position = UDim2.new(0.5, -200, 0.5, -200)
+        Glow.Size = UDim2.new(0, 400, 0, 400)
+        Glow.Image = "rbxassetid://5028857084"
+        Glow.ImageTransparency = 0.8
+        Glow.ZIndex = 0
+    end
+    
+    createGlow()
     
     return {
         ScreenGui = ScreenGui,
         KeyInput = KeyInput,
         SubmitButton = SubmitButton,
         GetKeyButton = GetKeyButton,
-        StatusLabel = StatusLabel
+        StatusLabel = StatusLabel,
+        DistributorLabel = DistributorLabel
     }
 end
 
--- Verify key with server (from second script, improved version)
+-- Verify key with server
 local function verifyKey(key)
-    -- Use the global verificationUrl constructed at the top
-    local fullVerificationUrl = verificationUrl .. "&key=" .. key .. "&dist_id=" .. DISTRIBUTOR_ID -- Include dist_id
-
+    -- Build the verification URL with distributor ID
+    local url = WEBSITE_URL .. "/?verify=1&key=" .. key
+    if DISTRIBUTOR_ID > 0 then
+        url = url .. "&d=" .. DISTRIBUTOR_ID
+    end
+    
     local success, response = pcall(function()
-        -- Using game:HttpGet is common in exploit contexts
-        -- Add a short timeout just in case
-        return game:HttpGet(fullVerificationUrl, true, {
-            ["User-Agent"] = "Roblox/1.0 (KeySystem; Distributor)" -- Optional: Add a User-Agent
-        }, 10) -- 10 second timeout
+        return game:HttpGet(url)
     end)
-
+    
     if success then
-        -- Trim whitespace from response
-        response = response:gsub("^%s+", ""):gsub("%s+$", "")
-
         if response == "valid" then
             return true, "valid"
         elseif response == "expired" then
             return false, "expired"
-        -- Server side is NOT currently checking or returning 'used' during verification
-        -- elseif response == "used" then
-        --     return false, "used"
-        elseif response == "invalid" then -- Server returns 'invalid' for key/dist_id mismatch or key doesn't exist
-            return false, "invalid"
-        elseif response == "error" then -- Server might return 'error' for missing tables etc.
-            return false, "server_error"
+        elseif response == "invalid_distributor" then
+            return false, "invalid_distributor"
         else
-             -- Handle unexpected response
-            warn("Unexpected response from server:", response)
-            return false, "unexpected_response"
+            return false, "invalid"
         end
     else
-        -- Handle HTTP request failure (pcall returned false)
-        warn("HTTP GET failed:", response) -- response might contain error message here
-        return false, "network_error" -- Indicate network problem
+        return false, "error"
     end
 end
 
--- Run the script after key verification (from second script)
+-- Run the script after key verification
 local function runMainScript()
-    -- The URL to the main script source is defined at the top of the file
-    local scriptSourceUrl = MAIN_SCRIPT_SOURCE_URL
-
-    -- Add a check to ensure the script source URL is valid and not the placeholder
-    if not scriptSourceUrl or scriptSourceUrl == "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE" or string.find(scriptSourceUrl, "YOUR_MAIN_SCRIPT_SOURCE_URL_HERE") then
-         warn("Main script source URL is not set correctly!")
-         -- Optionally display an error message in Roblox UI (requires modifying UI after it's destroyed)
-         return -- Don't attempt to execute
-    end
-
-    local success, err = pcall(function()
-         -- Execute the main script code
-         -- Note: This assumes MAIN_SCRIPT_SOURCE_URL points directly to the Lua code to be executed.
-         -- If it returns a table (like your old example) or needs different loading, adjust here.
-        local mainScript = game:HttpGet(scriptSourceUrl)
-        if mainScript and mainScript:len() > 0 then
-            -- Attempt to load and execute the script
-             local success_exec, err_exec = pcall(function()
-                 loadstring(mainScript)()
-             end)
-             if not success_exec then
-                 warn("Error executing main script:", err_exec)
-                 -- Optionally display error in UI if needed (complex after UI destroyed)
-             end
+    -- Execute the script from the URL specified at the top
+    local success, result = pcall(function()
+        if SCRIPT_URL and SCRIPT_URL ~= "" then
+            -- Load and execute the script
+            return loadstring(game:HttpGet(SCRIPT_URL))()
         else
-            error("Failed to download main script or script is empty from " .. scriptSourceUrl)
+            -- Fallback to default behavior if no script URL is provided
+            local Games = loadstring(game:HttpGet("https://raw.githubusercontent.com/newredz/BloxFruits/refs/heads/main/Source.luau"))
+            
+            for PlaceID, Execute in pairs(Games) do
+                if PlaceID == game.PlaceId then
+                    loadstring(game:HttpGet(Execute))()
+                    return true
+                end
+            end
+            return false
         end
     end)
-
+    
     if not success then
-        warn("Error during main script loading/execution:", err)
-        -- This pcall catches errors from game:HttpGet or the inner loadstring/execution
-        -- Optionally display an error to the user
+        -- If script loading failed, show an error message
+        local ScreenGui = Instance.new("ScreenGui")
+        local MessageFrame = Instance.new("Frame")
+        local MessageLabel = Instance.new("TextLabel")
+        local CloseButton = Instance.new("TextButton")
+        
+        ScreenGui.Parent = game:GetService("CoreGui")
+        
+        MessageFrame.Size = UDim2.new(0, 300, 0, 100)
+        MessageFrame.Position = UDim2.new(0.5, -150, 0.5, -50)
+        MessageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        MessageFrame.BorderSizePixel = 0
+        MessageFrame.Parent = ScreenGui
+        
+        -- Add corner radius
+        local FrameCorner = Instance.new("UICorner")
+        FrameCorner.CornerRadius = UDim.new(0, 6)
+        FrameCorner.Parent = MessageFrame
+        
+        MessageLabel.Size = UDim2.new(1, 0, 0.7, 0)
+        MessageLabel.Position = UDim2.new(0, 0, 0, 0)
+        MessageLabel.BackgroundTransparency = 1
+        MessageLabel.Font = Enum.Font.Gotham
+        MessageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        MessageLabel.TextSize = 14
+        MessageLabel.Text = "Error loading script. Please try again later."
+        MessageLabel.Parent = MessageFrame
+        
+        CloseButton.Size = UDim2.new(0, 80, 0, 30)
+        CloseButton.Position = UDim2.new(0.5, -40, 0.7, 0)
+        CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+        CloseButton.BorderSizePixel = 0
+        CloseButton.Font = Enum.Font.GothamBold
+        CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        CloseButton.TextSize = 14
+        CloseButton.Text = "Close"
+        CloseButton.Parent = MessageFrame
+        
+        -- Add corner radius to button
+        local ButtonCorner = Instance.new("UICorner")
+        ButtonCorner.CornerRadius = UDim.new(0, 4)
+        ButtonCorner.Parent = CloseButton
+        
+        CloseButton.MouseButton1Click:Connect(function()
+            ScreenGui:Destroy()
+        end)
+        
+        -- Print error to console for debugging
+        warn("Script execution error: " .. tostring(result))
     end
 end
 
--- Initialize key system and UI (merged functionality)
+-- Initialize key system and UI
 local function initKeySystem()
-    -- Check if mandatory placeholders are replaced first
-    if not checkPlaceholders() then
-        -- checkPlaceholders function already created the error UI
-        return
-    end
-
     local ui = createKeyUI()
     
-    -- Handle Get Key button (using logic from second script)
+    -- If distributor ID is specified, show it in the UI
+    if DISTRIBUTOR_ID > 0 then
+        ui.DistributorLabel.Text = "Distributor ID: " .. DISTRIBUTOR_ID
+    end
+    
+    -- Handle Get Key button
     ui.GetKeyButton.MouseButton1Click:Connect(function()
-        -- The getKeyUrl already includes the distributorId
-        setclipboard(getKeyUrl)
+        -- Generate the key website URL with distributor ID if specified
+        local keyWebsite = WEBSITE_URL
+        if DISTRIBUTOR_ID > 0 then
+            keyWebsite = keyWebsite .. "/?d=" .. DISTRIBUTOR_ID
+        end
+        
+        -- Copy URL to clipboard
+        setclipboard(keyWebsite)
         
         ui.StatusLabel.Text = "Key website URL copied to clipboard! Paste in your browser."
         ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
     end)
     
-    -- Handle Submit button (using logic from second script)
+    -- Handle Submit button
     ui.SubmitButton.MouseButton1Click:Connect(function()
-        local key = ui.KeyInput.Text:gsub("%s+", "") -- Trim whitespace from input
-
+        local key = ui.KeyInput.Text
+        
         if key == "" then
             ui.StatusLabel.Text = "Please enter a key!"
-            ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
-            ui.KeyInput:CaptureFocus() -- Keep focus on input
+            ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
             return
         end
-
+        
         ui.StatusLabel.Text = "Verifying key..."
-        ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
-
-        -- Add a small delay to show the verifying status (like in first script)
+        ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        
+        -- Add loading animation
+        local loadingDots = 0
+        local loadingConnection = game:GetService("RunService").Heartbeat:Connect(function()
+            if loadingDots < 3 then
+                loadingDots = loadingDots + 1
+            else
+                loadingDots = 0
+            end
+            ui.StatusLabel.Text = "Verifying key" .. string.rep(".", loadingDots)
+        end)
+        
         task.delay(1.5, function()
-            local isValid, status = verifyKey(key) -- Pass key to verification
-
+            loadingConnection:Disconnect()
+            
+            local isValid, status = verifyKey(key)
+            
             if isValid then
                 ui.StatusLabel.Text = "Key verified successfully!"
-                ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Green
-
-                -- Delay before closing UI and running script
-                task.delay(1.0, function()
+                ui.StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+                
+                -- Add success animation
+                for i = 1, 5 do
+                    ui.SubmitButton.BackgroundColor3 = Color3.fromRGB(34, 197, 94):Lerp(Color3.fromRGB(0, 255, 0), i/5)
+                    task.wait(0.05)
+                end
+                
+                task.delay(1, function()
                     ui.ScreenGui:Destroy()
-                    runMainScript() -- Run the main script logic
+                    runMainScript()
                 end)
             else
-                -- Update messages based on server response status
                 if status == "expired" then
-                    ui.StatusLabel.Text = "This key has expired! Keys expire after " .. keyExpirationHours .. " hours."
-                    ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
-                elseif status == "network_error" then
-                     ui.StatusLabel.Text = "Verification failed: Network error."
-                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0) -- Orange
-                elseif status == "server_error" or status == "unexpected_response" then
-                     ui.StatusLabel.Text = "Verification failed: Server error."
-                     ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0) -- Orange
-                else -- This covers "invalid" and any other unknown status
+                    ui.StatusLabel.Text = "This key has expired! Keys expire after 24 hours."
+                    ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                elseif status == "invalid_distributor" then
+                    ui.StatusLabel.Text = "This key is not valid for this distributor."
+                    ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                else
                     ui.StatusLabel.Text = "Invalid key! Please try again."
-                    ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red
+                    ui.StatusLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
                 end
-                 ui.KeyInput:CaptureFocus() -- Keep focus on input field
+                
+                -- Add error animation
+                for i = 1, 3 do
+                    ui.KeyInput.BorderColor3 = Color3.fromRGB(255, 0, 0)
+                    ui.KeyInput.BorderSizePixel = 2
+                    task.wait(0.1)
+                    ui.KeyInput.BorderSizePixel = 0
+                    task.wait(0.1)
+                end
             end
         end)
+    end)
+    
+    -- Make the UI draggable
+    local UserInputService = game:GetService("UserInputService")
+    local dragToggle = nil
+    local dragStart = nil
+    local startPos = nil
+    
+    local function updateInput(input)
+        local delta = input.Position - dragStart
+        local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        game:GetService("TweenService"):Create(ui.ScreenGui.MainFrame, TweenInfo.new(0.1), {Position = position}):Play()
+    end
+    
+    ui.ScreenGui.MainFrame.InputBegan:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = ui.ScreenGui.MainFrame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+    
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            if dragToggle then
+                updateInput(input)
+            end
+        end
     end)
     
     return ui
