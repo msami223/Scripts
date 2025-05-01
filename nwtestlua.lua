@@ -11,7 +11,7 @@
 -- Configuration (Edit these values)
 local WEBSITE_URL = "https://wordpress-1442530-5470290.cloudwaysapps.com"
 local SCRIPT_ID = "blox-fruits" -- Change this to your script identifier
-local DISTRIBUTOR_ID = "samiullah" -- Set to specific distributor ID or leave as 0 for random distributor
+local DISTRIBUTOR_ID = "1" -- Set to specific distributor ID or leave as 0 for random distributor
 local SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- URL of your script to execute
 
 -- Create the key verification UI
