@@ -381,7 +381,7 @@ local function initKeySystem()
         local keyWebsite = WEBSITE_URL
         if DISTRIBUTOR_ID and DISTRIBUTOR_ID ~= "" then
             keyWebsite = keyWebsite .. "/?d=" .. DISTRIBUTOR_ID
-        }
+        end  -- FIXED: Changed } to end
         
         -- Copy URL to clipboard
         local clipboardSuccess = safeSetClipboard(keyWebsite)
