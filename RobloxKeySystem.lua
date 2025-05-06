@@ -8,13 +8,16 @@
     4. The main script will automatically load if the key is valid
 ]]
 
--- Replace these with your actual URLs
-local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua" -- Replace with your GitHub raw URL
-local VERIFICATION_BASE_URL = "https://wordpress-1442530-5481910.cloudwaysapps.com/?verify=1&key="
-local GET_KEY_URL = "https://wordpress-1442530-5481910.cloudwaysapps.com/get-key/"
-
--- Add debug mode for easier troubleshooting
+-- Script Settings (CHANGE THESE)
+local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"
+local WEBSITE_BASE_URL = "https://wordpress-1442530-5481910.cloudwaysapps.com"
+local VERIFICATION_URL = WEBSITE_BASE_URL .. "/?verify=1&key="
+local GET_KEY_URL = WEBSITE_BASE_URL .. "/get-key/"
 local DEBUG_MODE = true
+
+-- For troubleshooting only - set to true if regular verification isn't working
+local USE_DEBUG_ENDPOINT = false
+local DEBUG_VERIFICATION_URL = WEBSITE_BASE_URL .. "/?debug_verify=1"
 
 -- Debug print function
 local function debugPrint(...)
@@ -158,9 +161,25 @@ GetKeyButton.MouseButton1Click:Connect(function()
     end)
 end)
 
+-- Test if HTTP Requests are enabled
+local function testHttpEnabled()
+    local HttpService = game:GetService("HttpService")
+    local success = pcall(function()
+        HttpService:JSONEncode({test = true})
+    end)
+    return success
+end
+
 -- Submit Key Button Logic
 SubmitKeyButton.MouseButton1Click:Connect(function()
     local HttpService = game:GetService("HttpService")
+    
+    -- Test if HTTP Requests are enabled
+    if not testHttpEnabled() then
+        StatusLabel.Text = "Error: HTTP Requests not enabled!"
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+        return
+    end
     
     -- Get the entered key
     local enteredKey = KeyInputBox.Text
@@ -180,18 +199,57 @@ SubmitKeyButton.MouseButton1Click:Connect(function()
     SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
     SubmitKeyButton.Active = false
     
-    -- URL-encode the key
-    local encodedKey = HttpService:UrlEncode(enteredKey)
-    
-    -- Construct the full verification URL
-    local fullUrl = VERIFICATION_BASE_URL .. encodedKey
+    -- Determine which verification URL to use
+    local fullUrl
+    if USE_DEBUG_ENDPOINT then
+        fullUrl = DEBUG_VERIFICATION_URL
+        debugPrint("Using debug endpoint")
+    else
+        -- URL-encode the key
+        local encodedKey = HttpService:UrlEncode(enteredKey)
+        fullUrl = VERIFICATION_URL .. encodedKey
+    end
     
     -- Debug output
     debugPrint("Attempting to connect to: " .. fullUrl)
     
-    -- Set headers
+    -- First test the test endpoint
+    local testUrl = WEBSITE_BASE_URL .. "/?test=1"
+    debugPrint("Testing connection with: " .. testUrl)
+    
+    local testSuccess, testResult = pcall(function()
+        return HttpService:GetAsync(testUrl, false, {
+            ["User-Agent"] = "Mozilla/5.0",
+            ["Cache-Control"] = "no-cache"
+        })
+    end)
+    
+    if not testSuccess then
+        debugPrint("Test connection failed:", testResult)
+        
+        -- Try one more time with different headers
+        local secondAttemptSuccess, secondAttemptResult = pcall(function()
+            return HttpService:GetAsync(testUrl, false, {
+                ["User-Agent"] = "Roblox/1.0"
+            })
+        end)
+        
+        if not secondAttemptSuccess then
+            StatusLabel.Text = "Error: Cannot connect to server. Make sure HTTP Requests are enabled!"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+            SubmitKeyButton.Active = true
+            return
+        else
+            debugPrint("Second test attempt succeeded:", secondAttemptResult)
+        end
+    else
+        debugPrint("Test connection successful:", testResult)
+    end
+    
+    -- Set headers - try with a standard browser user-agent
     local headers = {
-        ["User-Agent"] = "Roblox/1.0 (KeySystem)",
+        ["User-Agent"] = "Mozilla/5.0",
         ["Cache-Control"] = "no-cache"
     }
     
@@ -203,12 +261,25 @@ SubmitKeyButton.MouseButton1Click:Connect(function()
     -- Handle the pcall result
     if not success then
         debugPrint("HTTP Request Failed:", result)
-        StatusLabel.Text = "Error: Cannot connect to verification server."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-        warn("Key verification HTTP request failed:", result)
-        return
+        
+        -- Try again with a different User-Agent
+        local secondSuccess, secondResult = pcall(function()
+            return HttpService:GetAsync(fullUrl, false, {
+                ["User-Agent"] = "Roblox/1.0"
+            })
+        end)
+        
+        if not secondSuccess then
+            StatusLabel.Text = "Error: Cannot connect to verification server."
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+            SubmitKeyButton.Active = true
+            warn("Key verification HTTP request failed:", result)
+            return
+        else
+            result = secondResult
+            debugPrint("Second attempt succeeded with different headers")
+        end
     end
     
     -- Debug output
@@ -221,7 +292,7 @@ SubmitKeyButton.MouseButton1Click:Connect(function()
         
         -- Fetch the main script
         local fetchSuccess, scriptCodeOrError = pcall(function()
-            return HttpService:GetAsync(MAIN_SCRIPT_URL)
+            return HttpService:GetAsync(MAIN_SCRIPT_URL, false, headers)
         end)
         
         if not fetchSuccess then
@@ -280,6 +351,12 @@ SubmitKeyButton.MouseButton1Click:Connect(function()
         warn("Unexpected verification response:", result)
     end
 end)
+
+-- Run a quick test to see if HTTP Requests are enabled
+if not testHttpEnabled() then
+    StatusLabel.Text = "Warning: HTTP Requests not enabled in this game!"
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 180, 0)
+end
 
 -- Print initialization message
 print("Key System Loader initialized!")
