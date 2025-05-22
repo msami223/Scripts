@@ -1,25 +1,25 @@
 --[[
-    Roblox Key System Loader
-    
-    Instructions:
-    1. Copy this script to your executor
-    2. Click "Get Key" and follow instructions on the website
-    3. Paste key into the textbox and click "Submit Key"
-    4. The main script will automatically load if the key is valid
+Roblox Key System Loader
+
+Instructions:
+1. Copy this script to your executor
+2. Click "Get Key" and follow instructions on the website
+3. Paste key into the textbox and click "Submit Key"
+4. The main script will automatically load if the key is valid
 ]]
 
 -- Replace these with your actual URLs
 local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua"
-local WEBSITE_BASE_URL = "https://wordpress-1442530-5481910.cloudwaysapps.com"
+local WEBSITE_BASE_URL = "https://wordpress-1442530-5524527.cloudwaysapps.com/"
 local VERIFICATION_URL = WEBSITE_BASE_URL .. "/?verify=1&key="
 local GET_KEY_URL = WEBSITE_BASE_URL .. "/get-key/"
 local DEBUG_MODE = true
 
 -- Debug print function
 local function debugPrint(...)
-    if DEBUG_MODE then
-        print("[KeySystem Debug]", ...)
-    end
+if DEBUG_MODE then
+print("[KeySystem Debug]", ...)
+end
 end
 
 -- Create UI
@@ -127,9 +127,9 @@ CloseButton.TextSize = 14
 
 -- Add corner radius to UI elements
 function AddCorner(instance, radius)
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, radius)
-    corner.Parent = instance
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, radius)
+corner.Parent = instance
 end
 
 AddCorner(MainFrame, 10)
@@ -140,133 +140,133 @@ AddCorner(CloseButton, 10)
 
 -- Close Button Logic
 CloseButton.MouseButton1Click:Connect(function()
-    KeySystemUI:Destroy()
+KeySystemUI:Destroy()
 end)
 
 -- Get Key Button Logic
 GetKeyButton.MouseButton1Click:Connect(function()
-    setclipboard(GET_KEY_URL)
-    StatusLabel.Text = "Status: Key page URL copied! Paste in browser."
-    StatusLabel.TextColor3 = Color3.fromRGB(60, 180, 255)
-    
-    -- Reset status after 3 seconds
-    task.spawn(function()
-        task.wait(3)
-        StatusLabel.Text = "Status: Idle"
-        StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    end)
+setclipboard(GET_KEY_URL)
+StatusLabel.Text = "Status: Key page URL copied! Paste in browser."
+StatusLabel.TextColor3 = Color3.fromRGB(60, 180, 255)
+
+-- Reset status after 3 seconds
+task.spawn(function()
+task.wait(3)
+StatusLabel.Text = "Status: Idle"
+StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+end)
 end)
 
 -- Submit Key Button Logic
 SubmitKeyButton.MouseButton1Click:Connect(function()
-    -- Get the entered key
-    local enteredKey = KeyInputBox.Text
-    
-    -- Basic validation
-    if string.gsub(enteredKey, "%s", "") == "" then
-        StatusLabel.Text = "Status: Please enter a key."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        return
-    end
-    
-    -- Update status
-    StatusLabel.Text = "Status: Verifying key..."
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
-    
-    -- Disable the Submit button temporarily
-    SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    SubmitKeyButton.Active = false
-    
-    -- Construct the full verification URL
-    local fullUrl = VERIFICATION_URL .. enteredKey
-    
-    -- Debug output
-    debugPrint("Attempting to connect to: " .. fullUrl)
-    
-    -- Make the HTTP Request with error handling
-    local success, result = pcall(function()
-        return game:HttpGet(fullUrl)
-    end)
-    
-    -- Handle the pcall result
-    if not success then
-        debugPrint("HTTP Request Failed:", result)
-        StatusLabel.Text = "Error: Cannot connect to verification server."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-        warn("Key verification HTTP request failed:", result)
-        return
-    end
-    
-    -- Debug output
-    debugPrint("Server response:", result)
-    
-    -- Process the result string
-    if result == "valid" then
-        StatusLabel.Text = "Status: Valid Key! Loading script..."
-        StatusLabel.TextColor3 = Color3.fromRGB(60, 255, 60)
-        
-        -- Fetch the main script
-        local fetchSuccess, scriptCodeOrError = pcall(function()
-            return game:HttpGet(MAIN_SCRIPT_URL)
-        end)
-        
-        if not fetchSuccess then
-            debugPrint("Script Fetch Failed:", scriptCodeOrError)
-            StatusLabel.Text = "Error: Failed to download main script."
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-            SubmitKeyButton.Active = true
-            warn("Failed to fetch main script:", scriptCodeOrError)
-            return
-        end
-        
-        -- Execute the main script
-        StatusLabel.Text = "Status: Executing main script..."
-        task.wait(0.5)
-        
-        local runSuccess, runError = pcall(loadstring(scriptCodeOrError))
-        
-        if not runSuccess then
-            debugPrint("Script Execution Failed:", runError)
-            warn("!!! ERROR EXECUTING MAIN SCRIPT:", runError)
-            StatusLabel.Text = "Error: Failed to execute main script."
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-            SubmitKeyButton.Active = true
-            return
-        end
-        
-        -- Script executed successfully, remove the UI
-        task.wait(1)
-        KeySystemUI:Destroy()
-    
-    elseif result == "expired" then
-        StatusLabel.Text = "Error: Key has expired. Please get a new one."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-    
-    elseif result == "invalid" then
-        StatusLabel.Text = "Error: Invalid key entered."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-    
-    elseif result == "error" then
-        StatusLabel.Text = "Error: Server encountered an issue during verification."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-    
-    else
-        StatusLabel.Text = "Error: Unexpected server response."
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-        SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
-        SubmitKeyButton.Active = true
-        warn("Unexpected verification response:", result)
-    end
+-- Get the entered key
+local enteredKey = KeyInputBox.Text
+
+-- Basic validation
+if string.gsub(enteredKey, "%s", "") == "" then
+StatusLabel.Text = "Status: Please enter a key."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+return
+end
+
+-- Update status
+StatusLabel.Text = "Status: Verifying key..."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 255, 100)
+
+-- Disable the Submit button temporarily
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+SubmitKeyButton.Active = false
+
+-- Construct the full verification URL
+local fullUrl = VERIFICATION_URL .. enteredKey
+
+-- Debug output
+debugPrint("Attempting to connect to: " .. fullUrl)
+
+-- Make the HTTP Request with error handling
+local success, result = pcall(function()
+return game:HttpGet(fullUrl)
+end)
+
+-- Handle the pcall result
+if not success then
+debugPrint("HTTP Request Failed:", result)
+StatusLabel.Text = "Error: Cannot connect to verification server."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+warn("Key verification HTTP request failed:", result)
+return
+end
+
+-- Debug output
+debugPrint("Server response:", result)
+
+-- Process the result string
+if result == "valid" then
+StatusLabel.Text = "Status: Valid Key! Loading script..."
+StatusLabel.TextColor3 = Color3.fromRGB(60, 255, 60)
+
+-- Fetch the main script
+local fetchSuccess, scriptCodeOrError = pcall(function()
+return game:HttpGet(MAIN_SCRIPT_URL)
+end)
+
+if not fetchSuccess then
+debugPrint("Script Fetch Failed:", scriptCodeOrError)
+StatusLabel.Text = "Error: Failed to download main script."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+warn("Failed to fetch main script:", scriptCodeOrError)
+return
+end
+
+-- Execute the main script
+StatusLabel.Text = "Status: Executing main script..."
+task.wait(0.5)
+
+local runSuccess, runError = pcall(loadstring(scriptCodeOrError))
+
+if not runSuccess then
+debugPrint("Script Execution Failed:", runError)
+warn("!!! ERROR EXECUTING MAIN SCRIPT:", runError)
+StatusLabel.Text = "Error: Failed to execute main script."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+return
+end
+
+-- Script executed successfully, remove the UI
+task.wait(1)
+KeySystemUI:Destroy()
+
+elseif result == "expired" then
+StatusLabel.Text = "Error: Key has expired. Please get a new one."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+
+elseif result == "invalid" then
+StatusLabel.Text = "Error: Invalid key entered."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+
+elseif result == "error" then
+StatusLabel.Text = "Error: Server encountered an issue during verification."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+
+else
+StatusLabel.Text = "Error: Unexpected server response."
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+SubmitKeyButton.BackgroundColor3 = Color3.fromRGB(0, 180, 60)
+SubmitKeyButton.Active = true
+warn("Unexpected verification response:", result)
+end
 end)
 
 -- Print initialization message
