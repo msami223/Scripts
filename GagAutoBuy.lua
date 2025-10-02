@@ -247,9 +247,8 @@ function GUIManager.create()
     mainFrame.Position = UDim2.new(0.5, -200, 0.5, -280)
     mainFrame.Size = UDim2.new(0, 400, 0, 560)
     mainFrame.Active = true
-    mainFrame.Draggable = true
     mainFrame.Visible = config.guiVisible
-    mainFrame.ClipsDescendants = true
+    mainFrame.ClipsDescendants = false
     
     local mainCorner = Instance.new("UICorner", mainFrame)
     mainCorner.CornerRadius = UDim.new(0, 16)
@@ -260,6 +259,100 @@ function GUIManager.create()
     mainStroke.Transparency = 0.5
     
     guiElements.mainFrame = mainFrame
+    
+    -- Make frame draggable
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+    
+    local function updateDrag(input)
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+    
+    header.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = mainFrame.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    
+    header.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            if dragging then
+                updateDrag(input)
+            end
+        end
+    end)
+    
+    -- Resize Handle (Bottom-Right Corner)
+    local resizeHandle = Instance.new("Frame")
+    resizeHandle.Name = "ResizeHandle"
+    resizeHandle.Parent = mainFrame
+    resizeHandle.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+    resizeHandle.BorderSizePixel = 0
+    resizeHandle.AnchorPoint = Vector2.new(1, 1)
+    resizeHandle.Position = UDim2.new(1, 0, 1, 0)
+    resizeHandle.Size = UDim2.new(0, 20, 0, 20)
+    resizeHandle.ZIndex = 100
+    
+    local resizeCorner = Instance.new("UICorner", resizeHandle)
+    resizeCorner.CornerRadius = UDim.new(0, 0)
+    
+    -- Resize icon (3 diagonal lines)
+    local resizeIcon = Instance.new("TextLabel")
+    resizeIcon.Parent = resizeHandle
+    resizeIcon.BackgroundTransparency = 1
+    resizeIcon.Size = UDim2.new(1, 0, 1, 0)
+    resizeIcon.Font = Enum.Font.GothamBold
+    resizeIcon.Text = "⋰"
+    resizeIcon.TextColor3 = Color3.fromRGB(150, 150, 170)
+    resizeIcon.TextSize = 16
+    resizeIcon.Rotation = 90
+    resizeIcon.ZIndex = 101
+    
+    -- Make frame resizable
+    local resizing = false
+    local resizeStart = nil
+    local startSize = nil
+    local minSize = Vector2.new(350, 450)
+    local maxSize = Vector2.new(800, 900)
+    
+    local function updateResize(input)
+        local delta = input.Position - resizeStart
+        local newWidth = math.clamp(startSize.X + delta.X, minSize.X, maxSize.X)
+        local newHeight = math.clamp(startSize.Y + delta.Y, minSize.Y, maxSize.Y)
+        mainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
+    end
+    
+    resizeHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            resizing = true
+            resizeStart = input.Position
+            startSize = mainFrame.AbsoluteSize
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    resizing = false
+                end
+            end)
+        end
+    end)
+    
+    resizeHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            if resizing then
+                updateResize(input)
+            end
+        end
+    end)
 
     -- Header Section
     local header = Instance.new("Frame")
