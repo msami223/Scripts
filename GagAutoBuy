@@ -119,7 +119,7 @@ end
 -- Run the script after key verification
 local function runMainScript()
     -- Your original script logic here
-    local Games = 
+    local Games = https://raw.githubusercontent.com/msami223/Scripts/refs/heads/main/GagAutoBuy.lua?token=GHSAT0AAAAAADMLHHF3S4R4ZE3TRDYD2DAW2HD6W2A
     for PlaceID, Execute in pairs(Games) do
         if PlaceID == game.PlaceId then
             loadstring(game:HttpGet(Execute))()
