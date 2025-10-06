@@ -119,7 +119,7 @@ end
 -- Run the script after key verification
 local function runMainScript()
     -- Your original script logic here
-    local Games = loadstring(game:HttpGet('https://skullhub.xyz/loader.lua'))()
+    local Games = https://raw.githubusercontent.com/msami223/Scripts/refs/heads/main/GagAutoBuy.lua
     for PlaceID, Execute in pairs(Games) do
         if PlaceID == game.PlaceId then
             loadstring(game:HttpGet(Execute))()
