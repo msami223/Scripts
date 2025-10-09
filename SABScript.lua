@@ -7,6 +7,8 @@ local OwO = library:Window("Steal a Brainrot")
 
 local OwO1 = library:Window("Main2")
 
+
+
 OwO:Button("NEW Auto Steal", function()
 loadstring(game:HttpGet("https://pastebin.com/raw/2WEXn2UR"))()
 end)
@@ -186,7 +188,7 @@ end)
 OwO:Button("Auto Steal Tp Bases", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Youifpg/Steal-a-Brainrot-op/refs/heads/main/Arbixhub-obfuscated.lua"))()
 end)
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
 local Services = setmetatable({}, { __index = function(_,k) return game:GetService(k) end })
 local Players, RunService, Workspace = Services.Players, Services.RunService, Services.Workspace
 local TweenService, UserInputService = Services.TweenService, Services.UserInputService
