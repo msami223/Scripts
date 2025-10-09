@@ -186,7 +186,6 @@ end)
 OwO:Button("Auto Steal Tp Bases", function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Youifpg/Steal-a-Brainrot-op/refs/heads/main/Arbixhub-obfuscated.lua"))()
 end)
-OwO:Button("Open 2nd Hub", function()
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 local Services = setmetatable({}, { __index = function(_,k) return game:GetService(k) end })
 local Players, RunService, Workspace = Services.Players, Services.RunService, Services.Workspace
