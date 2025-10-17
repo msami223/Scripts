@@ -502,7 +502,7 @@ local function createButton(parent, text, callback)
     button.Size = UDim2.new(1, 0, 0, 38)
     button.BackgroundColor3 = COLORS.Primary
     button.Text = text
-    button.TextColor3 = COLORS.Text
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Explicit white
     button.TextSize = 15
     button.Font = Enum.Font.GothamBold
     button.BorderSizePixel = 0
@@ -541,7 +541,7 @@ local function createToggle(parent, text, defaultValue, callback)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = COLORS.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     label.TextSize = 14
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -562,7 +562,7 @@ local function createToggle(parent, text, defaultValue, callback)
     local indicator = Instance.new("Frame")
     indicator.Size = UDim2.new(0, 20, 0, 20)
     indicator.Position = defaultValue and UDim2.new(1, -23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
-    indicator.BackgroundColor3 = COLORS.Text
+    indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)  -- White indicator
     indicator.BorderSizePixel = 0
     indicator.Parent = toggle
     
@@ -602,7 +602,7 @@ local function createTextBox(parent, text, defaultValue, callback)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = COLORS.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     label.TextSize = 14
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -613,7 +613,7 @@ local function createTextBox(parent, text, defaultValue, callback)
     textbox.Position = UDim2.new(0.45, 5, 0.5, -15)
     textbox.BackgroundColor3 = COLORS.Background
     textbox.Text = tostring(defaultValue)
-    textbox.TextColor3 = COLORS.Text
+    textbox.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     textbox.TextSize = 14
     textbox.Font = Enum.Font.Gotham
     textbox.BorderSizePixel = 0
@@ -706,7 +706,7 @@ local function createCheckbox(parent, text, defaultValue, callback)
     label.Position = UDim2.new(0, 36, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = COLORS.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     label.TextSize = 13
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -742,7 +742,7 @@ local function createDropdown(parent, text, items, selectedItems, callback)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text .. " (" .. #selectedItems .. " selected)"
-    label.TextColor3 = COLORS.Text
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     label.TextSize = 14
     label.Font = Enum.Font.Gotham
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -753,7 +753,7 @@ local function createDropdown(parent, text, items, selectedItems, callback)
     expandButton.Position = UDim2.new(1, -40, 0.5, -15)
     expandButton.BackgroundColor3 = COLORS.Primary
     expandButton.Text = "▼"
-    expandButton.TextColor3 = COLORS.Text
+    expandButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
     expandButton.TextSize = 14
     expandButton.Font = Enum.Font.GothamBold
     expandButton.BorderSizePixel = 0
@@ -929,7 +929,7 @@ CloseButton.Size = UDim2.new(0, 40, 0, 40)
 CloseButton.Position = UDim2.new(1, -45, 0, 5)
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseButton.Text = "×"
-CloseButton.TextColor3 = COLORS.Text
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text on red
 CloseButton.TextSize = 28
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.BorderSizePixel = 0
@@ -994,7 +994,7 @@ local function createTab(name, icon)
             if otherTab:IsA("TextButton") then
                 if otherTab.Name == name then
                     otherTab.BackgroundColor3 = COLORS.Primary
-                    otherTab.TextColor3 = COLORS.Text
+                    otherTab.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White when selected
                 else
                     otherTab.BackgroundColor3 = COLORS.Surface
                     otherTab.TextColor3 = COLORS.TextSecondary
