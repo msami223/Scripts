@@ -31,7 +31,7 @@ local defaultConfig = {
     selectedSeeds = {},
     selectedGears = {},
     equipInterval = 20,
-    theme = "Dark",
+    theme = "Rose Pine",
     autoBuySeedsEnabled = false,
     autoBuyGearsEnabled = false,
     autoEquipEnabled = false,
@@ -124,7 +124,6 @@ local consecutiveTimeouts = 0
 local function setupAutoReconnect()
     print("🌐 Initializing 3-minute auto-reconnect with network monitoring...")
     
-    -- Method 1: Detect Roblox error prompts
     pcall(function()
         local RobloxPromptGui = game:GetService("CoreGui"):FindFirstChild("RobloxPromptGui")
         if RobloxPromptGui then
@@ -186,7 +185,6 @@ local function setupAutoReconnect()
         end
     end)
     
-    -- Method 2: NetworkClient disconnection detection
     pcall(function()
         NetworkClient.ChildRemoved:Connect(function()
             if autoReconnectEnabled then
@@ -212,7 +210,6 @@ local function setupAutoReconnect()
         end)
     end)
     
-    -- Method 3: Active ping monitoring (checks every 8 seconds)
     task.spawn(function()
         while true do
             task.wait(8)
@@ -256,7 +253,6 @@ local function setupAutoReconnect()
         end
     end)
     
-    -- Method 4: Monitor ReplicatedFirst
     pcall(function()
         game:GetService("ReplicatedFirst"):GetPropertyChangedSignal("FinishedReplicating"):Connect(function()
             if not game:GetService("ReplicatedFirst").FinishedReplicating and autoReconnectEnabled then
@@ -273,7 +269,6 @@ local function setupAutoReconnect()
         end)
     end)
     
-    -- Method 5: GuiService error monitoring
     pcall(function()
         local GuiService = game:GetService("GuiService")
         GuiService.ErrorMessageChanged:Connect(function()
@@ -294,7 +289,6 @@ local function setupAutoReconnect()
         end)
     end)
     
-    -- Method 6: Heartbeat freeze detection (15 seconds threshold)
     local lastHeartbeat = tick()
     pcall(function()
         game:GetService("RunService").Heartbeat:Connect(function()
@@ -590,7 +584,7 @@ local function saveConfig(customName)
         selectedSeeds = selectedSeeds,
         selectedGears = selectedGears,
         equipInterval = equipInt,
-        theme = WindUI:GetCurrentTheme() or "Dark",
+        theme = WindUI:GetCurrentTheme() or "Rose Pine",
         autoBuySeedsEnabled = autoBuySeedsEnabled,
         autoBuyGearsEnabled = autoBuyGearsEnabled,
         autoEquipEnabled = autoEquipEnabled,
@@ -755,8 +749,8 @@ if currentSettings.autoLoadEnabled and currentSettings.autoLoadConfig ~= "None" 
     end
 end
 
--- Set theme to default
-WindUI:SetTheme(currentConfig.theme or defaultConfig.theme)
+-- Set theme to BRIGHT colorful theme
+WindUI:SetTheme(currentConfig.theme or "Rose Pine")
 
 Window = WindUI:CreateWindow({
     Title = "Senpai Hub",
@@ -764,34 +758,47 @@ Window = WindUI:CreateWindow({
     Author = "@senpai",
     Folder = "SenpaiHubPVB",
     Size = UDim2.fromOffset(580, 490),
-    Theme = currentConfig.theme or defaultConfig.theme,
+    Theme = currentConfig.theme or "Rose Pine",
     SideBarWidth = 180,
 })
 
 Window:SetToggleKey(Enum.KeyCode.G)
 
-Window:CreateTopbarButton("theme-switcher", "moon", function()
-    local newTheme = WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark"
+Window:CreateTopbarButton("theme-switcher", "sun", function()
+    local themes = {"Rose Pine", "Retro", "Neon", "Light"}
+    local currentTheme = WindUI:GetCurrentTheme()
+    local currentIndex = 1
+    
+    for i, theme in ipairs(themes) do
+        if theme == currentTheme then
+            currentIndex = i
+            break
+        end
+    end
+    
+    local nextIndex = (currentIndex % #themes) + 1
+    local newTheme = themes[nextIndex]
+    
     WindUI:SetTheme(newTheme)
     if canChangeTheme and themeDropdown then
         themeDropdown:Set(newTheme)
     end
     WindUI:Notify({
         Title = "Theme Changed",
-        Content = "Interface theme changed to: " .. newTheme,
+        Content = "Switched to " .. newTheme .. " theme",
         Duration = 2
     })
 end, 990)
 
--- MODIFIED: Circular minimized button with gradient glow
+-- CIRCULAR minimized button with BRIGHT flame gradient
 Window:EditOpenButton({
-    Title = "Senpai Hub",
+    Title = "🔥 Senpai",
     Icon = "flame",
     CornerRadius = UDim.new(1, 0),
-    StrokeThickness = 3,
+    StrokeThickness = 4,
     Color = ColorSequence.new(
-        Color3.fromRGB(255, 69, 0),
-        Color3.fromRGB(255, 20, 147)
+        Color3.fromRGB(255, 100, 50),
+        Color3.fromRGB(255, 50, 200)
     ),
     OnlyMobile = true,
     Enabled = true,
@@ -1352,7 +1359,7 @@ SettingsTab:Button({
                     loaded = true
                     WindUI:Notify({
                         Title = "Settings Loaded",
-                        Content = name .. " loaded - Seeds: " .. #selectedSeeds .. ", Gears: " .. #selectedGears,
+                Content = name .. " loaded - Seeds: " .. #selectedSeeds .. ", Gears: " .. #selectedGears,
                         Duration = 3
                     })
                     break
@@ -1474,7 +1481,7 @@ end)
 task.spawn(function()
     task.wait(1)
     WindUI:Notify({
-        Title = "Senpai Hub Ready",
+        Title = "🔥 Senpai Hub Ready",
         Content = string.format("Welcome! %s\nSeeds: %d | Gears: %d | Interval: %ds\n\nPress G to toggle interface", 
             currentSettings.autoLoadEnabled and currentSettings.autoLoadConfig ~= "None" and ("Auto-loaded: " .. currentSettings.autoLoadConfig) or "Enjoy using my scripts!",
             #selectedSeeds,
