@@ -31,7 +31,7 @@ local defaultConfig = {
     selectedSeeds = {},
     selectedGears = {},
     equipInterval = 20,
-    theme = "Rose Pine",
+    theme = "Light",
     autoBuySeedsEnabled = false,
     autoBuyGearsEnabled = false,
     autoEquipEnabled = false,
@@ -584,7 +584,7 @@ local function saveConfig(customName)
         selectedSeeds = selectedSeeds,
         selectedGears = selectedGears,
         equipInterval = equipInt,
-        theme = WindUI:GetCurrentTheme() or "Rose Pine",
+        theme = WindUI:GetCurrentTheme() or "Light",
         autoBuySeedsEnabled = autoBuySeedsEnabled,
         autoBuyGearsEnabled = autoBuyGearsEnabled,
         autoEquipEnabled = autoEquipEnabled,
@@ -749,8 +749,8 @@ if currentSettings.autoLoadEnabled and currentSettings.autoLoadConfig ~= "None" 
     end
 end
 
--- Set theme to BRIGHT colorful theme
-WindUI:SetTheme(currentConfig.theme or "Rose Pine")
+-- Set theme to Light (bright theme)
+WindUI:SetTheme(currentConfig.theme or "Light")
 
 Window = WindUI:CreateWindow({
     Title = "Senpai Hub",
@@ -758,34 +758,21 @@ Window = WindUI:CreateWindow({
     Author = "@senpai",
     Folder = "SenpaiHubPVB",
     Size = UDim2.fromOffset(580, 490),
-    Theme = currentConfig.theme or "Rose Pine",
+    Theme = currentConfig.theme or "Light",
     SideBarWidth = 180,
 })
 
 Window:SetToggleKey(Enum.KeyCode.G)
 
 Window:CreateTopbarButton("theme-switcher", "sun", function()
-    local themes = {"Rose Pine", "Retro", "Neon", "Light"}
-    local currentTheme = WindUI:GetCurrentTheme()
-    local currentIndex = 1
-    
-    for i, theme in ipairs(themes) do
-        if theme == currentTheme then
-            currentIndex = i
-            break
-        end
-    end
-    
-    local nextIndex = (currentIndex % #themes) + 1
-    local newTheme = themes[nextIndex]
-    
+    local newTheme = WindUI:GetCurrentTheme() == "Dark" and "Light" or "Dark"
     WindUI:SetTheme(newTheme)
     if canChangeTheme and themeDropdown then
         themeDropdown:Set(newTheme)
     end
     WindUI:Notify({
         Title = "Theme Changed",
-        Content = "Switched to " .. newTheme .. " theme",
+        Content = "Interface theme changed to: " .. newTheme,
         Duration = 2
     })
 end, 990)
@@ -1359,7 +1346,7 @@ SettingsTab:Button({
                     loaded = true
                     WindUI:Notify({
                         Title = "Settings Loaded",
-                Content = name .. " loaded - Seeds: " .. #selectedSeeds .. ", Gears: " .. #selectedGears,
+                        Content = name .. " loaded - Seeds: " .. #selectedSeeds .. ", Gears: " .. #selectedGears,
                         Duration = 3
                     })
                     break
